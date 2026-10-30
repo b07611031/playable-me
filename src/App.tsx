@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ArrowLeft, ArrowRight, BookOpen, Check, ChevronRight, Code2, Compass, ExternalLink, Gamepad2, Github, Globe2, Map, RotateCcw, Sparkles, Trophy, VolumeX, X } from 'lucide-react'
+import { ArrowLeft, ArrowRight, BookOpen, Check, ChevronRight, Code2, Compass, ExternalLink, Gamepad2, Github, Globe2, Map, RotateCcw, Sparkles, Trophy, X } from 'lucide-react'
 
 type Lang = 'en' | 'zh'
 type ZoneId = 'lab' | 'field' | 'game'
