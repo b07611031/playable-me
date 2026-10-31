@@ -1,107 +1,97 @@
 import { useEffect, useRef, useState } from 'react'
 import { ArrowLeft, ArrowRight, RotateCcw, X } from 'lucide-react'
 
-type Lang = 'en' | 'zh'
-type Props = { lang: Lang; onClose: () => void; onWin: () => void }
-const maxWaves = 10
+type Props = { lang:'en'|'zh'; onClose:()=>void; onStart:()=>void; onWin:()=>void }
+type Meteor = { id:number; lane:number; progress:number; checked:boolean }
+const TOTAL = 10
+const SPAWN_MS = 1150
+const FALL_MS = 2100
 
-export default function SpaceQuest({ lang, onClose, onWin }: Props) {
-  const zh = lang === 'zh'
-  const [lane, setLane] = useState(1)
-  const laneRef = useRef(1)
-  const [rock, setRock] = useState<number | null>(null)
-  const [wave, setWave] = useState(0)
-  const [hearts, setHearts] = useState(3)
-  const [status, setStatus] = useState<'ready' | 'running' | 'won' | 'lost'>('ready')
-  const [flash, setFlash] = useState(false)
-  const statusRef = useRef(status)
-  const onWinRef = useRef(onWin)
-  onWinRef.current = onWin
-  const [gameNumber, setGameNumber] = useState(0)
-  const move = (direction: -1 | 1) => {
-    if (statusRef.current !== 'running') return
-    const next = Math.max(0, Math.min(2, laneRef.current + direction))
-    laneRef.current = next
-    setLane(next)
+export default function SpaceQuest({lang,onClose,onStart,onWin}:Props) {
+  const zh=lang==='zh'
+  const [ship,setShip]=useState(1)
+  const lane=useRef(1)
+  const [meteors,setMeteors]=useState<Meteor[]>([])
+  const live=useRef<Meteor[]>([])
+  const [waves,setWaves]=useState(0)
+  const [health,setHealth]=useState(3)
+  const hp=useRef(3)
+  const [result,setResult]=useState<'ready'|'running'|'won'|'lost'>('ready')
+  const game=useRef<'ready'|'running'|'won'|'lost'>('ready')
+  const [hit,setHit]=useState(false)
+  const [dodged,setDodged]=useState(0)
+  const [round,setRound]=useState(0)
+  const callbacks=useRef({onStart,onWin})
+  callbacks.current={onStart,onWin}
+  const move=(dir:-1|1)=>{
+    if(game.current!=='running')return
+    lane.current=Math.min(2,Math.max(0,lane.current+dir))
+    setShip(lane.current)
   }
-  const start = () => {
-    laneRef.current = 1
-    setLane(1)
-    setHearts(3)
-    setWave(0)
-    setRock(null)
-    setFlash(false)
-    statusRef.current = 'running'
-    setStatus('running')
-    setGameNumber(n => n + 1)
+  const start=()=>{
+    lane.current=1;setShip(1);live.current=[];setMeteors([])
+    hp.current=3;setHealth(3);setWaves(0);setDodged(0);setHit(false)
+    game.current='running';setResult('running');setRound(r=>r+1)
+    callbacks.current.onStart()
   }
-  useEffect(() => { statusRef.current = status }, [status])
-  useEffect(() => {
-    if (status !== 'running') return
-    const key = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowLeft' || e.key.toLowerCase() === 'a') { e.preventDefault(); move(-1) }
-      if (e.key === 'ArrowRight' || e.key.toLowerCase() === 'd') { e.preventDefault(); move(1) }
-    }
-    window.addEventListener('keydown', key)
-    let ticks = 0
-    let health = 3
-    let incomingLane: number | null = null
-    const interval = window.setInterval(() => {
-      // Telegraph the meteor for one second so visitors can actually dodge it.
-      if (incomingLane !== null) {
-        if (incomingLane === laneRef.current) {
-          health -= 1
-          setHearts(health)
-          setFlash(true)
-        } else setFlash(false)
-        if (health <= 0) {
-          statusRef.current = 'lost'
-          setStatus('lost')
-          setRock(null)
-          window.clearInterval(interval)
-          return
-        }
-        if (ticks >= maxWaves) {
-          statusRef.current = 'won'
-          setStatus('won')
-          setRock(null)
-          window.clearInterval(interval)
-          onWinRef.current()
-          return
-        }
+  useEffect(()=>{
+    if(result!=='running')return
+    const key=(e:KeyboardEvent)=>{if(e.key==='ArrowLeft'||e.key.toLowerCase()==='a'){e.preventDefault();move(-1)}else if(e.key==='ArrowRight'||e.key.toLowerCase()==='d'){e.preventDefault();move(1)}}
+    window.addEventListener('keydown',key)
+    let elapsed=0,previous=performance.now(),spawned=0,avoided=0
+    const timer=window.setInterval(()=>{
+      if(document.hidden)return
+      const now=performance.now()
+      const dt=Math.min(now-previous,100)
+      previous=now
+      elapsed+=dt
+      while(elapsed>=SPAWN_MS&&spawned<TOTAL){
+        elapsed-=SPAWN_MS
+        spawned+=1
+        live.current.push({id:spawned,lane:Math.floor(Math.random()*3),progress:0,checked:false})
+        setWaves(spawned)
       }
-      incomingLane = Math.floor(Math.random() * 3)
-      ticks += 1
-      setRock(incomingLane)
-      setWave(ticks)
-    }, 1000)
-    return () => { window.clearInterval(interval); window.removeEventListener('keydown', key) }
-    // gameNumber represents each explicit play session.
-  }, [gameNumber, status])
-  return <div className="overlay" onMouseDown={e => { if (e.target === e.currentTarget) onClose() }}>
-    <section className="space-quest" role="dialog" aria-modal="true" aria-labelledby="quest-title">
-      <header className="space-titlebar"><span>🚀 MINI QUEST / 001</span><button onClick={onClose} aria-label={zh ? '關閉遊戲' : 'Close game'}><X size={18}/></button></header>
-      <h2 id="quest-title">{zh ? '太空船躲避挑戰' : 'SPACESHIP DODGE'}</h2>
-      <p>{zh ? '這是向我的第一個程式作業致敬的小遊戲。左右移動，躲過 10 波隕石！' : 'A tiny tribute to my first coding project. Move left or right and dodge 10 meteor waves!'}</p>
-      <div className="space-stats"><span>HP {'♥'.repeat(hearts)}{'♡'.repeat(3 - hearts)}</span><span>WAVE {wave}/{maxWaves}</span></div>
-      <div className={'space-board ' + (flash ? 'space-flash' : '')} aria-label={zh ? '三條太空航道' : 'Three space lanes'}>
+      let collisions=0
+      live.current=live.current.map(m=>{
+        const progress=m.progress+dt/FALL_MS
+        if(!m.checked&&progress>=.85){
+          if(m.lane===lane.current)collisions++
+          else avoided++
+          return {...m,progress,checked:true}
+        }
+        return {...m,progress}
+      }).filter(m=>m.progress<1.13)
+      setMeteors([...live.current])
+      if(collisions){
+        hp.current=Math.max(0,hp.current-collisions)
+        setHealth(hp.current);setHit(true)
+        window.setTimeout(()=>setHit(false),220)
+      }
+      setDodged(avoided)
+      if(hp.current<=0){game.current='lost';setResult('lost');window.clearInterval(timer)}
+      else if(spawned===TOTAL&&live.current.length===0){game.current='won';setResult('won');callbacks.current.onWin();window.clearInterval(timer)}
+    },32)
+    return ()=>{window.clearInterval(timer);window.removeEventListener('keydown',key)}
+  },[round,result])
+  return <div className="overlay" onMouseDown={e=>{if(e.target===e.currentTarget)onClose()}}>
+    <section className="space-quest" role="dialog" aria-modal="true" aria-labelledby="space-title">
+      <header className="space-titlebar"><span>🚀 MINI QUEST / 001</span><button aria-label={zh?'關閉遊戲':'Close game'} onClick={onClose}><X size={18}/></button></header>
+      <h2 id="space-title">{zh?'太空船躲避挑戰':'SPACESHIP DODGE'}</h2>
+      <p>{zh?'隕石會從上方落下。看準它與太空船的距離，左右移動避開！':'Watch meteors fall toward your ship. Move between lanes before they reach you!'}</p>
+      <div className="space-stats"><span>HP {'♥'.repeat(health)}{'♡'.repeat(3-health)}</span><span>{zh?'已閃避':'DODGED'} {dodged}</span><span>WAVE {waves}/{TOTAL}</span></div>
+      <div className={'space-board '+(hit?'space-flash':'')} aria-label={zh?'隕石下落的三條航道':'Three lanes showing falling meteors'}>
         <div className="space-galaxy" aria-hidden="true">· ✦ · · ✧ · ✦ · · ✦ · ✧ ·</div>
-        {Array.from({ length: 3 }, (_, i) => <div key={i} className="space-lane">
-          {rock === i && status !== 'ready' && <span className="space-meteor" aria-hidden="true">☄</span>}
-          {lane === i && <span className="space-ship" aria-label={zh ? '你的太空船' : 'Your spaceship'}>🚀</span>}
+        {Array.from({length:3},(_,i)=><div key={i} className="space-lane">
+          {meteors.filter(m=>m.lane===i).map(m=><span key={m.id} className={'space-meteor '+(m.checked?'meteor-passed':'')} style={{top:`${m.progress*86}%`}} aria-hidden="true">☄</span>)}
+          {ship===i&&<span className="space-ship" aria-label={zh?'太空船':'Spaceship'}>🚀</span>}
         </div>)}
-        {status !== 'running' && <div className="space-message">
-          <strong>{status === 'ready' ? 'READY PLAYER ONE?' : status === 'won' ? (zh ? '任務完成！' : 'QUEST COMPLETE!') : (zh ? '太空船受損！' : 'SHIP DOWN!')}</strong>
-          {status === 'won' && <small>{zh ? '恭喜！你完成了太空船挑戰。' : 'You survived the asteroid field.'}</small>}
-        </div>}
+        <div className="space-impact-line" aria-hidden="true"/>
+        {result!=='running'&&<div className="space-message"><strong>{result==='ready'?'READY PLAYER ONE?':result==='won'?(zh?'任務完成！':'QUEST COMPLETE!'):(zh?'太空船受損！':'SHIP DOWN!')}</strong>{result==='won'&&<small>{zh?'成功閃避！三張故事卡現在可以探索。':'You made it through the asteroid field!'}</small>}</div>}
       </div>
-      <div className="space-controls">
-        <button onClick={() => move(-1)} disabled={status !== 'running'} aria-label={zh ? '向左' : 'Move left'}><ArrowLeft/> {zh ? '左' : 'LEFT'}</button>
-        <button onClick={() => move(1)} disabled={status !== 'running'} aria-label={zh ? '向右' : 'Move right'}>{zh ? '右' : 'RIGHT'} <ArrowRight/></button>
-      </div>
-      {status !== 'running' && <button className="space-start" onClick={start}>{status === 'ready' ? (zh ? '開始遊戲' : 'START GAME') : <><RotateCcw size={16}/>{zh ? '再玩一次' : 'PLAY AGAIN'}</>}</button>}
-      <button className="space-skip" onClick={onClose}>{zh ? '返回故事（可略過遊戲）' : 'BACK TO STORIES (SKIP)'}</button>
-      <p className="space-tip">{zh ? '鍵盤 ← → 或 A / D；手機使用下方按鈕。遊戲不影響履歷與成就解鎖。' : 'Use ← → or A / D on keyboard, or the on-screen controls. This mini-game is optional.'}</p>
+      <div className="space-controls"><button disabled={result!=='running'} onClick={()=>move(-1)} aria-label={zh?'向左':'Move left'}><ArrowLeft/>{zh?'左':'LEFT'}</button><button disabled={result!=='running'} onClick={()=>move(1)} aria-label={zh?'向右':'Move right'}>{zh?'右':'RIGHT'}<ArrowRight/></button></div>
+      {result!=='running'&&<button className="space-start" onClick={start}>{result==='ready'?(zh?'開始遊戲':'START GAME'):<><RotateCcw size={16}/>{zh?'再玩一次':'PLAY AGAIN'}</>}</button>}
+      <button className="space-skip" onClick={onClose}>{zh?'返回遊戲室':'BACK TO GAME ROOM'}</button>
+      <p className="space-tip">{zh?'鍵盤 ← → 或 A / D；手機使用左右按鈕。碰撞位置在船身附近的虛線。':'Keyboard: ← → or A / D. Mobile: buttons below. The dashed line marks the collision zone.'}</p>
     </section>
   </div>
 }
