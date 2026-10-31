@@ -53,7 +53,7 @@ export default function SharkMaze({lang,onClose,onStart,onWin,onCollect,owned}:P
      setHearts(remaining);setPlayer(START);setShark(SHARK);steps.current=0
      if(remaining<=0)setState('lost')
    }else {setPlayer(next);setShark(nextShark)}
-   if(nextCollected.length===TREASURES.length){setState('won');callbacks.current.onWin()}
+   if(nextCollected.length===TREASURES.length && (!same(next,nextShark) || v.hearts>1)){setState('won');callbacks.current.onWin()}
  },[])
  useEffect(()=>{if(state!=='running')return
   const key=(e:KeyboardEvent)=>{const k=e.key.toLowerCase(),d=k==='arrowup'||k==='w'?[-1,0]:k==='arrowdown'||k==='s'?[1,0]:k==='arrowleft'||k==='a'?[0,-1]:k==='arrowright'||k==='d'?[0,1]:null
