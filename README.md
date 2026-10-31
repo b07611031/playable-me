@@ -51,3 +51,25 @@ No analytics, tracking cookies or backend. Progress is local. The CSS-based scen
 ## Next iteration: interactions first, visual polish second
 
 See [the versioned interaction roadmap, saved UI Skill references, and A/B/C comparison plan](docs/roadmap-ui-experiment.md). The named Taste-Skill and Impact-Cable projects have not yet been independently verified or installed. The user-approved MVP remains the comparison baseline.
+
+## YUN CODEX — nine collectible identities
+
+The [character design and implementation specification](docs/yun-codex-spec-v1.md) maps each of 9 original pixel-art costumes to a real, bilingual story.
+
+- Builder: Student Yun, Researcher Yun, Engineer Yun (AI Lab milestone tiers 5/12/22).
+- Learner: Diver Yun, Boxer Yun, Explorer Yun (Ocean Maze mask/gloves/boots).
+- Gamer: Pilot Yun, Shadow Support Yun, Tactical Yun (Spaceship Dodge 2/5 dodges and full victory).
+- Locked cards show dark silhouettes with question marks; unlocked cards reveal origin stories, evidence and learned skills.
+- Open the codex anytime from the header, zone pages or mobile navigation.
+- New local keys: `pm-lab-tier` and `pm-game-tier`; `pm-outfits` and `pm-opened` are retained.
+- Winning a mini-game now opens the relevant codex section. Reading or skipping gameplay **never** awards character costumes.
+
+Validate the character schema/story linkages before publishing:
+
+```bash
+npm run test:maze
+npm run test:codex
+npm run build
+```
+
+This feature does not include design-skill-based UI polishing. Follow the planned controlled A/B/C screenshot comparison after game mechanics are approved.
