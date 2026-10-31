@@ -89,7 +89,8 @@ export default function SpaceQuest({lang,onClose,onStart,onWin}:Props) {
         {result!=='running'&&<div className="space-message"><strong>{result==='ready'?'READY PLAYER ONE?':result==='won'?(zh?'任務完成！':'QUEST COMPLETE!'):(zh?'太空船受損！':'SHIP DOWN!')}</strong>{result==='won'&&<small>{zh?'成功閃避！三張故事卡現在可以探索。':'You made it through the asteroid field!'}</small>}</div>}
       </div>
       <div className="space-controls"><button disabled={result!=='running'} onClick={()=>move(-1)} aria-label={zh?'向左':'Move left'}><ArrowLeft/>{zh?'左':'LEFT'}</button><button disabled={result!=='running'} onClick={()=>move(1)} aria-label={zh?'向右':'Move right'}>{zh?'右':'RIGHT'}<ArrowRight/></button></div>
-      {result!=='running'&&<button className="space-start" onClick={start}>{result==='ready'?(zh?'開始遊戲':'START GAME'):<><RotateCcw size={16}/>{zh?'再玩一次':'PLAY AGAIN'}</>}</button>}
+      {result==='won'&&<button className="space-start" onClick={onClose}>{zh?'成功！查看成就':'SUCCESS! VIEW ACHIEVEMENTS'}</button>}
+      {result!=='running'&&result!=='won'&&<button className="space-start" onClick={start}>{result==='ready'?(zh?'開始遊戲':'START GAME'):<><RotateCcw size={16}/>{zh?'再玩一次':'RETRY'}</>}</button>}
       <button className="space-skip" onClick={onClose}>{zh?'返回遊戲室':'BACK TO GAME ROOM'}</button>
       <p className="space-tip">{zh?'鍵盤 ← → 或 A / D；手機使用左右按鈕。碰撞位置在船身附近的虛線。':'Keyboard: ← → or A / D. Mobile: buttons below. The dashed line marks the collision zone.'}</p>
     </section>
