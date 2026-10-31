@@ -24,6 +24,7 @@ function approach(from:Point,to:Point):Point{
  visited.add(k);queue.push([{r,c},[...path,{r,c}]])}}
  return from
 }
+function YunSprite(){return <span className="pixel-avatar maze-yun" role="img" aria-label="Yun"><span className="hair"/><span className="face"/><span className="eyes"/><span className="shirt"/><span className="legs"/></span>}
 export default function SharkMaze({lang,onClose,onStart,onWin}:Props){
  const zh=lang==='zh'
  const [state,setState]=useState<'ready'|'running'|'won'|'lost'>('ready')
@@ -65,7 +66,7 @@ export default function SharkMaze({lang,onClose,onStart,onWin}:Props){
     {MAP.flatMap((row,r)=>row.split('').map((tile,c)=>{
       const t=TREASURES.findIndex(p=>p.r===r&&p.c===c),atPlayer=player.r===r&&player.c===c,atShark=shark.r===r&&shark.c===c
       return <div key={r+'-'+c} className={'maze-tile '+(tile==='#'?'maze-wall':'maze-water')}>
-       {atPlayer?<span className="maze-player">🧑🏻</span>:atShark?<span className="maze-shark">🦈</span>:t>=0&&!collected.includes(t)?<span className="maze-pearl">🫧</span>:null}
+       {atPlayer?<YunSprite/>:atShark?<span className="maze-shark">🦈</span>:t>=0&&!collected.includes(t)?<span className="maze-pearl">🫧</span>:null}
       </div>
     }))}
     {state!=='running'&&<div className="maze-message"><strong>{state==='ready'?(zh?'準備下潛？':'READY TO DIVE?'):state==='won'?(zh?'成功收集珍珠！':'PEARLS COLLECTED!'):(zh?'被鯊魚追上了！':'CAUGHT BY THE SHARK!')}</strong></div>}
