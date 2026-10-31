@@ -1,3 +1,4 @@
+import './codex.css'
 import {useState} from 'react'
 import {ArrowLeft, ArrowRight, Check, Lock, X} from 'lucide-react'
 import CharacterSprite from './CharacterSprite'
