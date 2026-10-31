@@ -76,3 +76,12 @@
 @media(max-width:680px){.codex-screen{padding:30px 15px 100px}.codex-heading{gap:10px}.codex-heading h1{font-size:20px;letter-spacing:-1px}.codex-total{padding:9px}.codex-total strong{font-size:18px}.codex-total small{font-size:11px}.codex-total span{font-size:7px}.codex-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}.codex-group{padding:12px}.codex-cards{gap:7px}.codex-card{padding:7px;border-width:1px}.codex-card-info strong{font-size:11px}.codex-card-info small{font-size:9px}.codex-card-foot{font-size:8px;letter-spacing:0}.codex-sprite{min-height:125px}.codex-modal-hero{gap:12px}.codex-modal-hero h2{font-size:18px}.codex-sprite-large{width:112px;min-width:112px;min-height:159px}.codex-header-link{display:none}.codex-badge{padding:0;margin-right:3px}}
 @media(max-width:365px){.codex-card-info strong{font-size:10px}.codex-cards{gap:4px}.codex-card{padding:4px}.codex-card-foot{font-size:7px}.codex-sprite{min-height:120px}.codex-group-heading h2{font-size:11px}}
 @media(prefers-reduced-motion:reduce){.codex-card,.codex-progress span{transition:none!important}}
+
+/* Character milestone feedback inside the unchanged SpaceQuest mini-game. */
+.space-role-progress{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:12px 0}
+.space-role-progress>span{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-width:0;border:1px solid #4b6379;background:#1e3043;color:#9bb0c4;padding:8px 3px;font-size:10px;line-height:1.4;text-align:center}
+.space-role-progress>span b{font-size:10px;overflow-wrap:anywhere}
+.space-role-progress>span small{font-size:9px;color:#a7bacc}
+.space-role-progress>span.earned{border-color:#dfbd83;background:#46453f;color:#f4dc9d}
+.space-role-progress>span.earned small{color:#d9c9a6}
+@media(max-width:390px){.space-role-progress>span b{font-size:9px}.space-role-progress>span small{font-size:8px}}
