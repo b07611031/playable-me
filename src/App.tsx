@@ -35,6 +35,7 @@ const labels = {
   zh:{start:'開始探索',map:'世界地圖',welcome:'歡迎，冒險者',intro:'嗨，我是 Yun。我用 AI 解決問題，喜歡動手學習，也從寫下第一行程式以前就熱愛遊戲。',hint:'選擇一個目的地，每個地方都藏著一段我的故事。',explore:'進入探索',seen:'已探索',completed:'解鎖成就！',finish:'完成所有冒險',ending:'下一段冒險，從一場對話開始。',back:'返回地圖',again:'重新開始',about:'關於這個世界',links:'聯絡與履歷',portfolio:'履歷即將提供',progress:'徽章',dialogue:'故事',continue:'下一段',exit:'關閉',skip:'略過介紹',chapter:'篇章',view:'閱讀故事',return:'返回',summary:'你認識了 YUN',revisit:'繼續探索',hint2:'點擊物品閱讀故事，探索此區域三個故事即可獲得徽章。',read:'故事',notready:'履歷連結將於公開發布前補上。',linkTitle:'專業連結',github:'GITHUB',sound:'目前版本沒有音效'}
 }
 const readSaved = (key:string): string[] => {try {const v=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(v)?v.filter((x):x is string=>typeof x==='string'):[]}catch{return []}}
+const readOutfits = ():number[] => {try {const v=JSON.parse(localStorage.getItem('pm-outfits')||'[]');return Array.isArray(v)?v.filter((n):n is number=>Number.isInteger(n)&&n>=0&&n<3):[]}catch{return []}}
 function PixelAvatar({large=false}:{large?:boolean}){return <div className={'pixel-avatar '+(large?'large':'')} aria-label="Pixel art character of Yun" role="img"><span className="hair"/><span className="face"/><span className="eyes"/><span className="shirt"/><span className="legs"/></div>}
 function PixelScene({zone, stories, completed, lang, onInteract}:{zone:ZoneId; stories:Story[]; completed:string[]; lang:Lang; onInteract:(story:Story)=>void}){return <div className={'scene-art scene-'+zone} role="group" aria-label={lang==='zh'?'可互動的像素場景':'Interactive pixel scene'}><div className="scene-sky" aria-hidden="true"><i/><i/><i/></div>{zone==='lab'?<><div className="pixel-window">✦</div><div className="scene-desk"><div className="monitor"><span> &gt;_ </span></div><div className="keyboard"/></div><div className="plant">✿</div></>:zone==='field'?<><div className="mountain-one"/><div className="mountain-two"/><div className="pine pine-a">♠</div><div className="pine pine-b">♠</div><div className="lake"/></>:<><div className="arcade arcade-a"><div>★</div><span>PLAY</span></div><div className="arcade arcade-b"><div>🚀</div><span>START</span></div><div className="neon-star">✧</div></>}<div className="ground"/><div className="scene-character"><PixelAvatar/></div><div className="scene-hotspots">{stories.map((story,i)=><button type="button" key={story.id} className={`scene-hotspot hotspot-${zone}-${i} ${completed.includes(story.id)?'hotspot-read':''}`} onClick={()=>onInteract(story)} aria-label={`${lang==='zh'?'探索':'Explore'}: ${tr(story.title,lang)}`} title={tr(story.title,lang)}><span className="hotspot-sprite" aria-hidden="true">{story.emoji}</span><span className="hotspot-label">{completed.includes(story.id)?'✓ ':'✦ '}{tr(story.title,lang)}</span></button>)}</div></div>}
 function App(){
@@ -51,7 +52,7 @@ function App(){
  const [fieldStarted,setFieldStarted]=useState(false)
  const [sharkOpen,setSharkOpen]=useState(false)
  const [sharkWon,setSharkWon]=useState(false)
- const [outfits,setOutfits]=useState<number[]>(()=>readSaved('pm-outfits').map(Number).filter(n=>Number.isInteger(n)&&n>=0&&n<3))
+ const [outfits,setOutfits]=useState<number[]>(readOutfits)
  const [labOpen,setLabOpen]=useState(false)
  const [labTier,setLabTier]=useState(0)
  const [skipGames,setSkipGames]=useState<Record<ZoneId,boolean>>({lab:false,field:false,game:false})
