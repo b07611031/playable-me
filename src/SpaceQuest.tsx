@@ -20,6 +20,7 @@ export default function SpaceQuest({lang,onClose,onStart,onWin,onMilestone,onVie
   const game=useRef<'ready'|'running'|'won'|'lost'>('ready')
   const [hit,setHit]=useState(false)
   const [dodged,setDodged]=useState(0)
+  const [gameTier,setGameTier]=useState(0)
   const [round,setRound]=useState(0)
   const callbacks=useRef({onStart,onWin,onMilestone})
   callbacks.current={onStart,onWin,onMilestone}
@@ -30,7 +31,7 @@ export default function SpaceQuest({lang,onClose,onStart,onWin,onMilestone,onVie
   }
   const start=()=>{
     lane.current=1;setShip(1);live.current=[];setMeteors([])
-    hp.current=3;setHealth(3);setWaves(0);setDodged(0);setHit(false)
+    hp.current=3;setHealth(3);setWaves(0);setDodged(0);setGameTier(0);setHit(false)
     game.current='running';setResult('running');setRound(r=>r+1)
     callbacks.current.onStart()
   }
@@ -69,9 +70,9 @@ export default function SpaceQuest({lang,onClose,onStart,onWin,onMilestone,onVie
       }
       setDodged(avoided)
       const tier=avoided>=5?2:avoided>=2?1:0
-      if(tier>awarded){awarded=tier;callbacks.current.onMilestone(tier)}
+      if(tier>awarded){awarded=tier;setGameTier(tier);callbacks.current.onMilestone(tier)}
       if(hp.current<=0){game.current='lost';setResult('lost');window.clearInterval(timer)}
-      else if(spawned===TOTAL&&live.current.length===0){game.current='won';setResult('won');callbacks.current.onMilestone(3);callbacks.current.onWin();window.clearInterval(timer)}
+      else if(spawned===TOTAL&&live.current.length===0){game.current='won';setResult('won');setGameTier(3);callbacks.current.onMilestone(3);callbacks.current.onWin();window.clearInterval(timer)}
     },32)
     return ()=>{window.clearInterval(timer);window.removeEventListener('keydown',key)}
   },[round,result])
@@ -90,6 +91,11 @@ export default function SpaceQuest({lang,onClose,onStart,onWin,onMilestone,onVie
         <div className="space-impact-line" aria-hidden="true"/>
         {result!=='running'&&<div className="space-message"><strong>{result==='ready'?'READY PLAYER ONE?':result==='won'?(zh?'任務完成！':'QUEST COMPLETE!'):(zh?'太空船受損！':'SHIP DOWN!')}</strong>{result==='won'&&<small>{zh?'成功閃避！三張故事卡現在可以探索。':'You made it through the asteroid field!'}</small>}</div>}
       </div>
+      <div className="space-role-progress" aria-label={zh?'角色解鎖進度':'Character unlock progress'}>{[
+  {name:'Pilot Yun',condition:zh?'閃避 2 顆':'DODGE 2',need:1},
+  {name:'Shadow Support Yun',condition:zh?'閃避 5 顆':'DODGE 5',need:2},
+  {name:'Tactical Yun',condition:zh?'完成挑戰':'FINISH GAME',need:3}
+ ].map(role=><span key={role.name} className={gameTier>=role.need?'earned':'locked'}>{gameTier>=role.need?'✦':'?'} <b>{gameTier>=role.need?role.name:'???'}</b><small>{role.condition}</small></span>)}</div>
       <div className="space-controls"><button disabled={result!=='running'} onClick={()=>move(-1)} aria-label={zh?'向左':'Move left'}><ArrowLeft/>{zh?'左':'LEFT'}</button><button disabled={result!=='running'} onClick={()=>move(1)} aria-label={zh?'向右':'Move right'}>{zh?'右':'RIGHT'}<ArrowRight/></button></div>
       {result==='won'&&<button className="space-start" onClick={onViewAchievements}>{zh?'成功！查看角色圖鑑':'SUCCESS! VIEW ACHIEVEMENTS'}</button>}
       {result!=='running'&&result!=='won'&&<button className="space-start" onClick={start}>{result==='ready'?(zh?'開始遊戲':'START GAME'):<><RotateCcw size={16}/>{zh?'再玩一次':'RETRY'}</>}</button>}
