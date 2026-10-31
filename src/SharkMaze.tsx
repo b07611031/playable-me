@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, RotateCcw, X } from 'lucide-react'
-type Props={lang:'en'|'zh';onClose:()=>void;onStart:()=>void;onWin:()=>void;onCollect:(item:number)=>void;owned:number[]}
+type Props={lang:'en'|'zh';onClose:()=>void;onViewAchievements:()=>void;onStart:()=>void;onWin:()=>void;onCollect:(item:number)=>void;owned:number[]}
 type Point={r:number;c:number}
 const MAP=[
 '###########',
@@ -26,7 +26,7 @@ function approach(from:Point,to:Point):Point{
  return from
 }
 function YunSprite({outfit}:{outfit:number|null}){return <span className={'pixel-avatar maze-yun '+(outfit===null?'':`outfit-${ITEMS[outfit].style}`)} role="img" aria-label="Yun"><span className="hair"/><span className="face"/><span className="eyes"/><span className="shirt"/><span className="legs"/><span className="accessory"/></span>}
-export default function SharkMaze({lang,onClose,onStart,onWin,onCollect,owned}:Props){
+export default function SharkMaze({lang,onClose,onViewAchievements,onStart,onWin,onCollect,owned}:Props){
  const zh=lang==='zh'
  const [state,setState]=useState<'ready'|'running'|'won'|'lost'>('ready')
  const [player,setPlayer]=useState<Point>(START)
@@ -76,7 +76,7 @@ export default function SharkMaze({lang,onClose,onStart,onWin,onCollect,owned}:P
     {state!=='running'&&<div className="maze-message"><strong>{state==='ready'?(zh?'準備下潛？':'READY TO DIVE?'):state==='won'?(zh?'三種 Yun 造型解鎖！':'THREE OUTFITS UNLOCKED!'):(zh?'被鯊魚追上了！':'CAUGHT BY THE SHARK!')}</strong></div>}
    </div>
    <div className="maze-controls"><div/><button disabled={state!=='running'} onClick={()=>move(-1,0)} aria-label={zh?'上':'Up'}><ArrowUp/></button><div/><button disabled={state!=='running'} onClick={()=>move(0,-1)} aria-label={zh?'左':'Left'}><ArrowLeft/></button><button disabled={state!=='running'} onClick={()=>move(1,0)} aria-label={zh?'下':'Down'}><ArrowDown/></button><button disabled={state!=='running'} onClick={()=>move(0,1)} aria-label={zh?'右':'Right'}><ArrowRight/></button></div>
-   {state==='won'&&<button className="space-start" onClick={onClose}>{zh?'成功！查看角色圖鑑':'SUCCESS! VIEW ACHIEVEMENTS'}</button>}
+   {state==='won'&&<button className="space-start" onClick={onViewAchievements}>{zh?'成功！查看角色圖鑑':'SUCCESS! VIEW ACHIEVEMENTS'}</button>}
    {state!=='running'&&state!=='won'&&<button className="space-start" onClick={start}>{state==='ready'?(zh?'開始探險':'START EXPLORING'):<><RotateCcw size={16}/>{zh?'再試一次':'RETRY'}</>}</button>}
    <div className="maze-items" aria-label={zh?'角色造型收集進度':'Outfit collection'}>{ITEMS.map((item,i)=><span key={item.style} className={owned.includes(i)||collected.includes(i)?'collected':''}>{owned.includes(i)||collected.includes(i)?item.icon:'❔'} {zh?item.zh:item.en}</span>)}</div>
    <button className="space-skip" onClick={onClose}>{zh?'返回冒險原野':'BACK TO QUEST FIELD'}</button>
