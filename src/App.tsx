@@ -79,7 +79,7 @@ function App(){
  const progress:Progress={labTier,gameTier,outfits}
  const codexCount=countUnlocked(progress)
  const openCodex=(group:Group|'all'='all')=>{setCodexGroup(group);setScreen('codex')}
- const unlockedCount=skipGames[zone.id]?3:zone.id==='game'?(gameStarted?3:0):zone.id==='field'?(fieldStarted?3:0):labTier
+ const unlockedCount=skipGames[zone.id]?3:zone.id==='game'?((gameStarted||gameTier>0)?3:0):zone.id==='field'?((fieldStarted||outfits.length>0)?3:0):labTier
  const storyAccess=unlockedCount>0
  const launchGame=()=>{if(zone.id==='game')setSpaceOpen(true);else if(zone.id==='field')setSharkOpen(true);else setLabOpen(true)}
  return <div className="app-shell">
@@ -99,7 +99,7 @@ function App(){
         <span className="eyebrow">MINI QUEST / {zone.id==='game'?'001':zone.id==='field'?'002':'003'}</span>
         <h2>{zone.id==='game'?'🚀 SPACESHIP DODGE':zone.id==='field'?'🦈 OCEAN MAZE':'⚡ AI POWER-UP LAB'}</h2>
         <p>{zone.id==='game'
-          ?(lang==='zh'?'先玩一局太空船，親眼看到隕石從上方逼近。開始遊戲即可解鎖三張故事卡。':'Play a round of Spaceship Dodge. Meteors visibly fall toward your ship; starting reveals all three stories.')
+          ?(lang==='zh'?'閃避 2 顆、5 顆隕石並完成整場遊戲，可依序解鎖三種 Gamer 角色；故事卡在開始遊戲後就能閱讀。':'Dodge 2 and 5 meteors, then finish the round to reveal three Gamer identities. Stories are available as soon as you start.')
           :zone.id==='field'
           ?(lang==='zh'?'操作 Yun 收集海底珍珠，同時避開鯊魚。開始探索即可看到三張故事卡。':'Guide Yun through an underwater maze while avoiding a shark. Starting reveals the three stories.')
           :(lang==='zh'?'12 秒內連點生成能量！累積 5、12、22 次，逐步解鎖一、二、三張故事卡。':'Tap for 12 seconds! Reach 5, 12 or 22 taps to unlock one, two or three stories.')}</p>
