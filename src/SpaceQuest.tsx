@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { ArrowLeft, ArrowRight, RotateCcw, X } from 'lucide-react'
 
-type Props = { lang:'en'|'zh'; onClose:()=>void; onStart:()=>void; onWin:()=>void }
+type Props = { lang:'en'|'zh'; onClose:()=>void; onStart:()=>void; onWin:()=>void; onMilestone:(tier:number)=>void; onViewAchievements:()=>void }
 type Meteor = { id:number; lane:number; progress:number; checked:boolean }
 const TOTAL = 10
 const SPAWN_MS = 1150
 const FALL_MS = 2100
 
-export default function SpaceQuest({lang,onClose,onStart,onWin}:Props) {
+export default function SpaceQuest({lang,onClose,onStart,onWin,onMilestone,onViewAchievements}:Props) {
   const zh=lang==='zh'
   const [ship,setShip]=useState(1)
   const lane=useRef(1)
@@ -21,8 +21,8 @@ export default function SpaceQuest({lang,onClose,onStart,onWin}:Props) {
   const [hit,setHit]=useState(false)
   const [dodged,setDodged]=useState(0)
   const [round,setRound]=useState(0)
-  const callbacks=useRef({onStart,onWin})
-  callbacks.current={onStart,onWin}
+  const callbacks=useRef({onStart,onWin,onMilestone})
+  callbacks.current={onStart,onWin,onMilestone}
   const move=(dir:-1|1)=>{
     if(game.current!=='running')return
     lane.current=Math.min(2,Math.max(0,lane.current+dir))
@@ -38,7 +38,7 @@ export default function SpaceQuest({lang,onClose,onStart,onWin}:Props) {
     if(result!=='running')return
     const key=(e:KeyboardEvent)=>{if(e.key==='ArrowLeft'||e.key.toLowerCase()==='a'){e.preventDefault();move(-1)}else if(e.key==='ArrowRight'||e.key.toLowerCase()==='d'){e.preventDefault();move(1)}}
     window.addEventListener('keydown',key)
-    let elapsed=0,previous=performance.now(),spawned=0,avoided=0
+    let elapsed=0,previous=performance.now(),spawned=0,avoided=0,awarded=0
     const timer=window.setInterval(()=>{
       if(document.hidden)return
       const now=performance.now()
@@ -68,8 +68,10 @@ export default function SpaceQuest({lang,onClose,onStart,onWin}:Props) {
         window.setTimeout(()=>setHit(false),220)
       }
       setDodged(avoided)
+      const tier=avoided>=5?2:avoided>=2?1:0
+      if(tier>awarded){awarded=tier;callbacks.current.onMilestone(tier)}
       if(hp.current<=0){game.current='lost';setResult('lost');window.clearInterval(timer)}
-      else if(spawned===TOTAL&&live.current.length===0){game.current='won';setResult('won');callbacks.current.onWin();window.clearInterval(timer)}
+      else if(spawned===TOTAL&&live.current.length===0){game.current='won';setResult('won');callbacks.current.onMilestone(3);callbacks.current.onWin();window.clearInterval(timer)}
     },32)
     return ()=>{window.clearInterval(timer);window.removeEventListener('keydown',key)}
   },[round,result])
@@ -89,7 +91,7 @@ export default function SpaceQuest({lang,onClose,onStart,onWin}:Props) {
         {result!=='running'&&<div className="space-message"><strong>{result==='ready'?'READY PLAYER ONE?':result==='won'?(zh?'任務完成！':'QUEST COMPLETE!'):(zh?'太空船受損！':'SHIP DOWN!')}</strong>{result==='won'&&<small>{zh?'成功閃避！三張故事卡現在可以探索。':'You made it through the asteroid field!'}</small>}</div>}
       </div>
       <div className="space-controls"><button disabled={result!=='running'} onClick={()=>move(-1)} aria-label={zh?'向左':'Move left'}><ArrowLeft/>{zh?'左':'LEFT'}</button><button disabled={result!=='running'} onClick={()=>move(1)} aria-label={zh?'向右':'Move right'}>{zh?'右':'RIGHT'}<ArrowRight/></button></div>
-      {result==='won'&&<button className="space-start" onClick={onClose}>{zh?'成功！查看成就':'SUCCESS! VIEW ACHIEVEMENTS'}</button>}
+      {result==='won'&&<button className="space-start" onClick={onViewAchievements}>{zh?'成功！查看角色圖鑑':'SUCCESS! VIEW ACHIEVEMENTS'}</button>}
       {result!=='running'&&result!=='won'&&<button className="space-start" onClick={start}>{result==='ready'?(zh?'開始遊戲':'START GAME'):<><RotateCcw size={16}/>{zh?'再玩一次':'RETRY'}</>}</button>}
       <button className="space-skip" onClick={onClose}>{zh?'返回遊戲室':'BACK TO GAME ROOM'}</button>
       <p className="space-tip">{zh?'鍵盤 ← → 或 A / D；手機使用左右按鈕。碰撞位置在船身附近的虛線。':'Keyboard: ← → or A / D. Mobile: buttons below. The dashed line marks the collision zone.'}</p>
