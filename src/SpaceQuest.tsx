@@ -45,26 +45,35 @@ export default function SpaceQuest({ lang, onClose, onWin }: Props) {
     window.addEventListener('keydown', key)
     let ticks = 0
     let health = 3
+    let incomingLane: number | null = null
     const interval = window.setInterval(() => {
-      ticks += 1
-      const fallingLane = Math.floor(Math.random() * 3)
-      setRock(fallingLane)
-      setWave(ticks)
-      if (fallingLane === laneRef.current) {
-        health -= 1
-        setHearts(health)
-        setFlash(true)
-      } else setFlash(false)
-      if (health <= 0) {
-        statusRef.current = 'lost'
-        setStatus('lost')
-        window.clearInterval(interval)
-      } else if (ticks >= maxWaves) {
-        statusRef.current = 'won'
-        setStatus('won')
-        window.clearInterval(interval)
-        onWinRef.current()
+      // Telegraph the meteor for one second so visitors can actually dodge it.
+      if (incomingLane !== null) {
+        if (incomingLane === laneRef.current) {
+          health -= 1
+          setHearts(health)
+          setFlash(true)
+        } else setFlash(false)
+        if (health <= 0) {
+          statusRef.current = 'lost'
+          setStatus('lost')
+          setRock(null)
+          window.clearInterval(interval)
+          return
+        }
+        if (ticks >= maxWaves) {
+          statusRef.current = 'won'
+          setStatus('won')
+          setRock(null)
+          window.clearInterval(interval)
+          onWinRef.current()
+          return
+        }
       }
+      incomingLane = Math.floor(Math.random() * 3)
+      ticks += 1
+      setRock(incomingLane)
+      setWave(ticks)
     }, 1000)
     return () => { window.clearInterval(interval); window.removeEventListener('keydown', key) }
     // gameNumber represents each explicit play session.
