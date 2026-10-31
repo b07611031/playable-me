@@ -51,7 +51,7 @@ export default function SharkMaze({lang,onClose,onStart,onWin}:Props){
    if(nextCollected.length===TREASURES.length){setState('won');callbacks.current.onWin()}
  },[])
  useEffect(()=>{if(state!=='running')return
-  const key=(e:KeyboardEvent)=>{const k=e.key.toLowerCase(),d:k==='arrowup'||k==='w'?[-1,0]:k==='arrowdown'||k==='s'?[1,0]:k==='arrowleft'||k==='a'?[0,-1]:k==='arrowright'||k==='d'?[0,1]:null
+  const key=(e:KeyboardEvent)=>{const k=e.key.toLowerCase(),d=k==='arrowup'||k==='w'?[-1,0]:k==='arrowdown'||k==='s'?[1,0]:k==='arrowleft'||k==='a'?[0,-1]:k==='arrowright'||k==='d'?[0,1]:null
    if(d){e.preventDefault();move(d[0],d[1])}}
   window.addEventListener('keydown',key);return()=>window.removeEventListener('keydown',key)
  },[move,state])
