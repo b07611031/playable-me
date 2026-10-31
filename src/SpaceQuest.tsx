@@ -15,6 +15,8 @@ export default function SpaceQuest({ lang, onClose, onWin }: Props) {
   const [status, setStatus] = useState<'ready' | 'running' | 'won' | 'lost'>('ready')
   const [flash, setFlash] = useState(false)
   const statusRef = useRef(status)
+  const onWinRef = useRef(onWin)
+  onWinRef.current = onWin
   const [gameNumber, setGameNumber] = useState(0)
   const move = (direction: -1 | 1) => {
     if (statusRef.current !== 'running') return
@@ -61,12 +63,12 @@ export default function SpaceQuest({ lang, onClose, onWin }: Props) {
         statusRef.current = 'won'
         setStatus('won')
         window.clearInterval(interval)
-        onWin()
+        onWinRef.current()
       }
     }, 1000)
     return () => { window.clearInterval(interval); window.removeEventListener('keydown', key) }
     // gameNumber represents each explicit play session.
-  }, [gameNumber, status, onWin])
+  }, [gameNumber, status])
   return <div className="overlay" onMouseDown={e => { if (e.target === e.currentTarget) onClose() }}>
     <section className="space-quest" role="dialog" aria-modal="true" aria-labelledby="quest-title">
       <header className="space-titlebar"><span>🚀 MINI QUEST / 001</span><button onClick={onClose} aria-label={zh ? '關閉遊戲' : 'Close game'}><X size={18}/></button></header>
