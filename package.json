@@ -7,7 +7,8 @@
     "dev": "vite --host 0.0.0.0",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --host 0.0.0.0",
-    "test:maze": "node scripts/check-maze.mjs"
+    "test:maze": "node scripts/check-maze.mjs",
+    "test:codex": "node scripts/check-codex.mjs"
   },
   "dependencies": {
     "react": "^19.1.1",
