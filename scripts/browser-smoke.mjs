@@ -43,6 +43,42 @@ try {
     await page.getByRole('heading', {name:/YUN CODEX/i}).waitFor()
     assert.equal(await page.locator('.codex-card').count(), 9, 'Should display 9 role cards')
     assert.equal(await page.locator('.codex-locked').count(), 9, 'Fresh profile starts locked')
+
+    // A locked role must ask before navigating; cancel leaves Codex in place.
+    await page.locator('.codex-locked').first().click()
+    await page.getByText(/GO TO THE UNLOCK STATION/i).waitFor()
+    await page.getByRole('button', {name:/NOT NOW/i}).click()
+    await page.getByRole('heading',{name:/YUN CODEX/i}).waitFor()
+    await page.locator('.codex-locked').first().click()
+    await page.getByRole('button',{name:/GO TO AI LAB/i}).click()
+    await page.locator('.zone-heading h1').filter({hasText:/AI LAB/i}).waitFor()
+
+    // A full AI Lab run reveals appearances only, then returns to station stories.
+    await page.getByRole('button',{name:/PLAY MINI GAME/i}).click()
+    await page.getByRole('button',{name:/START 12-SECOND RUN/i}).click()
+    const tap=page.getByRole('button',{name:/Tap to generate energy/i})
+    for(let i=0;i<22;i++)await tap.click()
+    await page.getByRole('button',{name:/SUCCESS! SEE UNLOCKED CHARACTERS/i}).click()
+    await page.getByRole('dialog',{name:/CHARACTERS UNLOCKED/i}).waitFor()
+    assert.equal(await page.locator('.unlock-preview-character').count(),3,'AI Lab should preview 3 characters')
+    assert.equal(await page.locator('.codex-modal').count(),0,'Victory must not open Codex detail')
+    await page.getByRole('button',{name:/GOT IT — BACK TO STORIES/i}).click()
+    assert.equal(await page.locator('.unlock-preview').count(),0,'Acknowledge closes preview')
+    await page.locator('.zone-heading h1').filter({hasText:/AI LAB/i}).waitFor()
+    assert.equal(await page.locator('.story-card:not(.story-locked)').count(),3,'Return to unlocked station stories')
+
+    // Locked Gamer and Learner characters should navigate to their respective stations.
+    await page.getByRole('button',{name:/Open nine-character codex/i}).click()
+    await page.getByRole('button',{name:/GAMER 0\\/3/i}).click()
+    await page.locator('.codex-locked').first().click()
+    await page.getByRole('button',{name:/GO TO GAME ROOM/i}).click()
+    await page.locator('.zone-heading h1').filter({hasText:/GAME ROOM/i}).waitFor()
+    await page.getByRole('button',{name:/Open nine-character codex/i}).click()
+    await page.getByRole('button',{name:/LEARNER 0\\/3/i}).click()
+    await page.locator('.codex-locked').first().click()
+    await page.getByRole('button',{name:/GO TO QUEST FIELD/i}).click()
+    await page.locator('.zone-heading h1').filter({hasText:/QUEST FIELD/i}).waitFor()
+
     await page.reload({waitUntil:'networkidle'})
     assert.equal(await page.locator('h1').count(),1,'App should survive reload')
     assert.deepEqual(errors,[], 'Browser console or runtime errors')
