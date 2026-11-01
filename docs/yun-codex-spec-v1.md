@@ -69,3 +69,27 @@ The nine costumes are **story viewpoints**, not nine literal job titles or indep
 ## Future UI skill comparison
 
 Freeze this iteration as the gameplay and nine-character content baseline before running any Taste-Skill / Impact-Cable style auditing. The exact skill identity, license and repository URLs still require verification. Capture matching screenshots from the previous baseline and this build before any visual replacement.
+
+## UX revision — unlock preview and locked-character routing (2026-11-01)
+
+### Game completion → quick reveal → Station stories
+- A successful mini-game keeps its existing victory action, but this action now opens a **compact character appearance preview**, **not the full YUN CODEX**.
+- The preview shows only already-unlocked original sprites and character names; no résumé evidence, narrative details, or full story content.
+- Primary action: **「我了解了，返回探索故事」 / “GOT IT — BACK TO STORIES”**.
+- Confirming closes the preview and returns directly to the **same Station** (AI Lab, Quest Field, or Game Room), where the stories can be read in their original context.
+- The full YUN CODEX is available anytime via the global header, Station link or mobile navigation.
+- Previously unlocked characters in the current Station are shown together to avoid a misleading one-off award; no locked character's identity is revealed.
+- A normal mini-game Close/Skip still returns to the Station without forcing the preview.
+
+### Locked role → confirm Station → enter Station
+- Clicking an undiscovered character in the full YUN CODEX opens a confirmation instead of a dead-end unlock hint.
+- Show the dark silhouette and question mark, an unlock hint, and the **destination Station name**, but hide character identity and résumé story until unlocked.
+- Offer two explicit actions: **Not now** (remain in Codex) or **Go to [Station]** (navigate directly).
+- Group → Station mapping: Builder → AI Lab; Learner → Quest Field; Gamer → Game Room.
+- No game or achievement unlock is granted by navigation itself. The existing story shortcut remains available for busy visitors.
+
+### Interaction acceptance
+- In all three worlds, victory → see unlocked character appearance → acknowledge → Station (no intermediate map or Codex navigation required).
+- For each category, clicking locked character → cancel stays in Codex; confirming enters correct Station.
+- Full Codex already-unlocked character detail continues to provide its original story link.
+- Regression automation exercises AI Lab 22-tap completion and all three Station routing flows on Chromium in desktop and mobile viewports.
