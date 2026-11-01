@@ -85,3 +85,25 @@
 .space-role-progress>span.earned{border-color:#dfbd83;background:#46453f;color:#f4dc9d}
 .space-role-progress>span.earned small{color:#d9c9a6}
 @media(max-width:390px){.space-role-progress>span b{font-size:9px}.space-role-progress>span small{font-size:8px}}
+
+
+/* Post-game reward: appearance-only view. Stories remain in the original station. */
+.unlock-preview{width:min(100%,650px);background:#1b2d42;border:3px solid #e2c28b;box-shadow:8px 8px #0a1524;padding:26px;max-height:90vh;overflow-y:auto;text-align:center}
+.unlock-preview h2{font-family:'Press Start 2P',monospace;font-size:clamp(15px,2.5vw,22px);line-height:1.7;color:#f5deaf;margin:17px 0 7px}
+.unlock-preview-subtitle{font-size:13px;color:#b7c9d7;line-height:1.7;margin:0}
+.unlock-preview-characters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:23px 0}
+.unlock-preview-character{background:#273e54;border:2px solid #738795;min-width:0;padding:10px 7px;display:flex;align-items:center;flex-direction:column;gap:7px}
+.unlock-preview-character .codex-sprite{height:155px;min-height:155px}
+.unlock-preview-character b{font-size:13px;color:#f5e3be;line-height:1.5}
+.unlock-preview-character>span:last-child{display:flex;align-items:center;gap:5px;color:#afd5a7;font-size:10px;font-weight:800;letter-spacing:.5px}
+.unlock-preview-ack{width:100%;background:#edc785;border:2px solid #ffebbb;color:#263248;padding:15px;min-height:51px;font-weight:800;font-size:12px;letter-spacing:.5px}
+.unlock-preview-ack:hover,.codex-modal-cta:hover{background:#ffe0a4}
+.unlock-preview-tip{color:#aebfd0;font-size:12px;line-height:1.75;margin:15px 0 0}
+.codex-station-confirm{padding:14px 0 0}
+.codex-station-confirm>strong{display:block;color:#f4dca5;font-size:14px}
+.codex-station-confirm>p{color:#ced8e0;font-size:13px;line-height:1.7}
+.codex-confirm-actions{display:flex;align-items:stretch;gap:12px;margin-top:16px}
+.codex-confirm-actions .codex-modal-cta{width:auto;flex:2;margin:0;min-height:49px}
+.codex-confirm-cancel{flex:1;background:#283d51;border:1px solid #6a8398;color:#ebeff3;font-weight:800;font-size:12px;min-height:49px;padding:11px}
+.codex-confirm-cancel:hover{background:#36546b}
+@media(max-width:510px){.unlock-preview{padding:17px 10px;box-shadow:4px 4px #0a1524}.unlock-preview-characters{gap:6px}.unlock-preview-character{padding:6px 3px}.unlock-preview-character .codex-sprite{height:130px;min-height:130px}.unlock-preview-character b{font-size:10px}.unlock-preview-character>span:last-child{font-size:8px}.codex-confirm-actions{flex-direction:column-reverse;gap:8px}.codex-confirm-actions .codex-modal-cta{width:100%}}
