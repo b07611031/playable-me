@@ -19,7 +19,7 @@ Requires Node.js 22+.
 
 ```bash
 npm install
-npm run dev
+npm run dev  # opens locally at http://localhost:5173/
 npm run build
 npm run preview
 ```
@@ -73,3 +73,19 @@ npm run build
 ```
 
 This feature does not include design-skill-based UI polishing. Follow the planned controlled A/B/C screenshot comparison after game mechanics are approved.
+
+## Local dev white-screen fix (PR #5)
+
+Local Vite now uses `base: '/'` in dev and `base: '/playable-me/'` for production builds (GitHub Pages). Open **http://localhost:5173/** after `npm run dev`, not the GitHub Pages subpath.
+
+Update your local branch before testing:
+
+```bash
+git fetch origin
+git switch feat/yun-codex-nine-roles
+git pull --ff-only
+npm install
+npm run dev
+```
+
+The repository's CI now runs a **real Chromium browser smoke test** at desktop 1440×900 and mobile 390×844: homepage → world map → YUN CODEX → reload, checking the browser console for errors. This goes beyond `npm run build` (which only verifies production compilation). See `scripts/browser-smoke.mjs`.
