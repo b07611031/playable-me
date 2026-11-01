@@ -76,7 +76,7 @@ export default function SharkMaze({lang,onClose,onViewAchievements,onStart,onWin
     {state!=='running'&&<div className="maze-message"><strong>{state==='ready'?(zh?'準備下潛？':'READY TO DIVE?'):state==='won'?(zh?'三種 Yun 造型解鎖！':'THREE OUTFITS UNLOCKED!'):(zh?'被鯊魚追上了！':'CAUGHT BY THE SHARK!')}</strong></div>}
    </div>
    <div className="maze-controls"><div/><button disabled={state!=='running'} onClick={()=>move(-1,0)} aria-label={zh?'上':'Up'}><ArrowUp/></button><div/><button disabled={state!=='running'} onClick={()=>move(0,-1)} aria-label={zh?'左':'Left'}><ArrowLeft/></button><button disabled={state!=='running'} onClick={()=>move(1,0)} aria-label={zh?'下':'Down'}><ArrowDown/></button><button disabled={state!=='running'} onClick={()=>move(0,1)} aria-label={zh?'右':'Right'}><ArrowRight/></button></div>
-   {state==='won'&&<button className="space-start" onClick={onViewAchievements}>{zh?'成功！查看角色圖鑑':'SUCCESS! VIEW ACHIEVEMENTS'}</button>}
+   {state==='won'&&<button className="space-start" onClick={onViewAchievements}>{zh?'成功！查看解鎖角色':'SUCCESS! SEE UNLOCKED CHARACTERS'}</button>}
    {state!=='running'&&state!=='won'&&<button className="space-start" onClick={start}>{state==='ready'?(zh?'開始探險':'START EXPLORING'):<><RotateCcw size={16}/>{zh?'再試一次':'RETRY'}</>}</button>}
    <div className="maze-items" aria-label={zh?'角色造型收集進度':'Outfit collection'}>{ITEMS.map((item,i)=><span key={item.style} className={owned.includes(i)||collected.includes(i)?'collected':''}>{owned.includes(i)||collected.includes(i)?item.icon:'❔'} {zh?item.zh:item.en}</span>)}</div>
    <button className="space-skip" onClick={onClose}>{zh?'返回冒險原野':'BACK TO QUEST FIELD'}</button>
