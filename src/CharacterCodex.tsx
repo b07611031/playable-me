@@ -4,15 +4,16 @@ import {ArrowLeft, ArrowRight, Check, Lock, X} from 'lucide-react'
 import CharacterSprite from './CharacterSprite'
 import {countUnlocked,groupInfo,groups,isUnlocked,roles,type Group,type Lang,type Progress,type Role} from './codex'
 
-type Props={lang:Lang;progress:Progress;onBack:()=>void;onStory:(storyId:string)=>void;preferredGroup?:Group|'all'}
+type Props={lang:Lang;progress:Progress;onBack:()=>void;onStory:(storyId:string)=>void;preferredGroup?:Group|'all';onGoToStation:(group:Group)=>void}
 const val=(o:{en:string;zh:string},lang:Lang)=>o[lang]
+const stationNames:Record<Group,{en:string;zh:string}>={builder:{en:'AI Lab',zh:'AI 研究室'},learner:{en:'Quest Field',zh:'冒險原野'},gamer:{en:'Game Room',zh:'遊戲房間'}}
 const hint=(group:Group,lang:Lang)=>({
  builder:lang==='zh'?'挑戰 AI Lab 連點，達成 5 / 12 / 22 次':'Play AI Lab and reach 5 / 12 / 22 taps',
  learner:lang==='zh'?'在海底迷宮收集潛水鏡、拳套與探險鞋':'Collect the dive mask, gloves and boots in Ocean Maze',
  gamer:lang==='zh'?'躲過 2 / 5 波隕石並完成太空船挑戰':'Dodge 2 / 5 meteors and complete Spaceship Dodge'
 })[group]
 
-export default function Codex({lang,progress,onBack,onStory,preferredGroup='all'}:Props){
+export default function Codex({lang,progress,onBack,onStory,preferredGroup='all',onGoToStation}:Props){
  const zh=lang==='zh'
  const [filter,setFilter]=useState<Group|'all'>(preferredGroup)
  const [selected,setSelected]=useState<Role|null>(null)
@@ -30,7 +31,7 @@ export default function Codex({lang,progress,onBack,onStory,preferredGroup='all'
     <div className="codex-group-heading"><div><span className="eyebrow">0{groups.indexOf(group)+1} / COLLECTION</span><h2>{val(groupInfo[group].name,lang)}</h2><p>{val(groupInfo[group].theme,lang)}</p></div><div className="codex-group-counter">{roles.filter(r=>r.group===group&&isUnlocked(r,progress)).length}/3</div></div>
     <div className="codex-cards">{roles.filter(r=>r.group===group).map(role=>{
       const earned=isUnlocked(role,progress)
-      return <button key={role.id} className={'codex-card '+(earned?'codex-earned':'codex-locked')} onClick={()=>setSelected(role)} aria-label={earned?val(role.name,lang):(zh?'未解鎖角色，點擊查看提示':'Locked role, click for a hint')}>
+      return <button key={role.id} className={'codex-card '+(earned?'codex-earned':'codex-locked')} onClick={()=>setSelected(role)} aria-label={earned?val(role.name,lang):(zh?'未解鎖角色，點擊選擇是否前往解鎖地點':'Locked role, click to visit its unlock station')}>
         <span className="codex-card-num">#{String(roles.indexOf(role)+1).padStart(2,'0')}</span>
         <CharacterSprite role={role} locked={!earned}/>
         <span className="codex-card-info"><strong>{earned?val(role.name,lang):'???'}</strong><small>{earned?val(role.classTag,lang):(zh?'尚未解鎖':'LOCKED')}</small></span>
@@ -51,7 +52,14 @@ export default function Codex({lang,progress,onBack,onStory,preferredGroup='all'
      </>:<>
        <div className="codex-unknown"><CharacterSprite role={selected} locked large/><div><h2 id="codex-detail-heading">???</h2><p>{zh?'尚未解鎖的身份':'UNKNOWN CHARACTER'}</p></div></div>
        <div className="codex-evidence"><span>✦ {zh?'解鎖線索':'UNLOCK HINT'}</span><p>{hint(selected.group,lang)}</p></div>
-       <button className="codex-modal-cta" onClick={()=>setSelected(null)}>{zh?'繼續探索':'KEEP EXPLORING'} <ArrowRight size={17}/></button>
+       <div className="codex-station-confirm">
+         <strong>{zh?'要前往解鎖地點嗎？':'GO TO THE UNLOCK STATION?'}</strong>
+         <p>{zh?'這個角色可以在「'+stationNames[selected.group].zh+'」解鎖。要現在前往嗎？':'This character can be unlocked in '+stationNames[selected.group].en+'. Would you like to go there now?'}</p>
+         <div className="codex-confirm-actions">
+           <button className="codex-confirm-cancel" onClick={()=>setSelected(null)}>{zh?'稍後再說':'NOT NOW'}</button>
+           <button className="codex-modal-cta" onClick={()=>{const group=selected.group;setSelected(null);onGoToStation(group)}}>{zh?'前往 '+stationNames[selected.group].zh:'GO TO '+stationNames[selected.group].en.toUpperCase()} <ArrowRight size={17}/></button>
+         </div>
+       </div>
      </>}
    </section></div>}
  </section>
