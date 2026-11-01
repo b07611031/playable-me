@@ -8,7 +8,8 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --host 0.0.0.0",
     "test:maze": "node scripts/check-maze.mjs",
-    "test:codex": "node scripts/check-codex.mjs"
+    "test:codex": "node scripts/check-codex.mjs",
+    "test:case": "node scripts/check-case-safe-modules.mjs"
   },
   "dependencies": {
     "react": "^19.1.1",
