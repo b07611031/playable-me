@@ -4,6 +4,7 @@ import SpaceQuest from './SpaceQuest'
 import SharkMaze from './SharkMaze'
 import LabClicker from './LabClicker'
 import Codex from './CharacterCodex'
+import CharacterUnlockPreview from './CharacterUnlockPreview'
 import {countUnlocked, type Group, type Progress} from './codex'
 
 type Lang = 'en' | 'zh'
@@ -60,6 +61,7 @@ function App(){
  const [labTier,setLabTier]=useState(()=>readTier('pm-lab-tier'))
  const [gameTier,setGameTier]=useState(()=>readTier('pm-game-tier'))
  const [codexGroup,setCodexGroup]=useState<Group|'all'>('all')
+ const [unlockPreview,setUnlockPreview]=useState<Group|null>(null)
  const [skipGames,setSkipGames]=useState<Record<ZoneId,boolean>>({lab:false,field:false,game:false})
  const t=labels[lang]
  const zone=zones.find(z=>z.id===zoneId)!
@@ -78,7 +80,9 @@ function App(){
  const completed=zoneComplete(zone)
  const progress:Progress={labTier,gameTier,outfits}
  const codexCount=countUnlocked(progress)
- const openCodex=(group:Group|'all'='all')=>{setCodexGroup(group);setScreen('codex')}
+ const openCodex=(group:Group|'all'='all')=>{setUnlockPreview(null);setCodexGroup(group);setScreen('codex')}
+ const goToStation=(group:Group)=>{setZoneId(group==='builder'?'lab':group==='learner'?'field':'game');setScreen('zone');setActiveStory(null)}
+ const showUnlockPreview=(group:Group)=>{setSpaceOpen(false);setSharkOpen(false);setLabOpen(false);goToStation(group);setUnlockPreview(group)}
  const unlockedCount=skipGames[zone.id]?3:zone.id==='game'?((gameStarted||gameTier>0)?3:0):zone.id==='field'?((fieldStarted||outfits.length>0)?3:0):labTier
  const storyAccess=unlockedCount>0
  const launchGame=()=>{if(zone.id==='game')setSpaceOpen(true);else if(zone.id==='field')setSharkOpen(true);else setLabOpen(true)}
@@ -88,7 +92,7 @@ function App(){
   <main className="main-content">
    {screen==='home'&&<section className="home-screen"><div className="tiny-kicker"><span className="pulse-dot"/> AN INTERACTIVE PORTFOLIO · 2026</div><div className="home-art"><div className="pixel-sun"/><span className="float-star st1">✧</span><span className="float-star st2">✦</span><span className="float-star st3">✧</span><div className="home-platform"/><PixelAvatar large/><span className="home-shadow"/></div><div className="home-copy"><p className="level-tag">PLAYER 001 · ENGINEER / GAMER / EXPLORER</p><h1>THE STORY<br/>OF <em>YUN</em><span className="cursor">_</span></h1><p className="tagline">Started with Games. <span>Built with AI.</span><br/>Always Learning.</p><p className="intro">{t.intro}</p><button className="primary-cta" onClick={()=>setScreen('map')}><Gamepad2 size={19}/>{t.start}<ChevronRight size={20}/></button><button className="secondary-link" onClick={()=>setLinksOpen(true)}>{t.links} <ArrowRight size={15}/></button></div></section>}
    {screen==='map'&&<section className="map-screen"><div className="section-top"><p className="eyebrow">01 / WORLD SELECT</p><h1>{t.map}<span className="title-spark"> ✦</span></h1><p className="section-subtitle">{t.hint}</p></div><div className="world-board"><div className="map-pattern"/><div className="map-route route-one"/><div className="map-route route-two"/><div className="map-player"><PixelAvatar/></div>{zones.map((z,i)=><button key={z.id} className={'world-location node-'+z.id} onClick={()=>{setZoneId(z.id);setScreen('zone')}} style={{'--accent':z.accent} as CSSProperties}><span className={'map-building build-'+z.id}>{z.id==='lab'?'▣':z.id==='field'?'▲':'▤'}</span><span className="map-label">{tr(z.name,lang)}</span><span className="map-check">{zoneComplete(z)?'✓':('0'+(i+1))}</span></button>)}<div className="pixel-trees" aria-hidden="true">♠ ♠<br/>♠ ♠ ♠</div><div className="map-lake" aria-hidden="true">≈ ≈ ≈</div></div><div className="map-footer"><span>✦ {badges}/3 {t.progress}</span><span>CHOOSE A LOCATION ↗</span></div><div className="zone-preview-list">{zones.map(z=><button className="preview-row" key={z.id} onClick={()=>{setZoneId(z.id);setScreen('zone')}}><span className="preview-symbol" style={{color:z.accent}}>{z.icon}</span><span><b>{tr(z.name,lang)}</b><small>{tr(z.trait,lang)}</small></span>{zoneComplete(z)?<Check size={17} className="done-icon"/>:<ChevronRight size={17}/>}</button>)}</div></section>}
-   {screen==='codex'&&<Codex lang={lang} progress={progress} onBack={()=>setScreen('map')} preferredGroup={codexGroup} onStory={id=>{const s=zones.flatMap(z=>z.stories).find(s=>s.id===id);if(s)openStory(s)}}/>}
+   {screen==='codex'&&<Codex lang={lang} progress={progress} onBack={()=>setScreen('map')} preferredGroup={codexGroup} onGoToStation={goToStation} onStory={id=>{const s=zones.flatMap(z=>z.stories).find(s=>s.id===id);if(s)openStory(s)}}/>}
    {screen==='zone'&&<section className="zone-screen">
     <button className="back-link" onClick={goMap}><ArrowLeft size={16}/>{t.back}</button>
     <div className="zone-heading"><p className="eyebrow">02 / {t.chapter} · {zone.id.toUpperCase()}</p><h1 style={{color:zone.accent}}>{tr(zone.name,lang)}</h1><p>{tr(zone.trait,lang)}</p></div>
@@ -122,9 +126,10 @@ function App(){
   <footer className="site-footer"><span>© YUN · MADE WITH CURIOSITY</span><span><Sparkles size={12}/> PRESS START ON YOUR NEXT IDEA</span></footer>
   {activeStory&&<div className="overlay" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setActiveStory(null)}}><section className="dialogue-modal" role="dialog" aria-modal="true" aria-labelledby="dialog-title"><div className="dialogue-bar"><span>✦ {t.dialogue} · {line+1}/{activeStory.lines[lang==='en'?0:1].length}</span><button className="close-modal" onClick={()=>setActiveStory(null)} aria-label={t.exit}><X size={18}/></button></div><div className="dialogue-person"><span className="object-icon big">{activeStory.emoji}</span><div><p>YUN’S JOURNAL</p><h2 id="dialog-title">{tr(activeStory.title,lang)}</h2></div></div><p className="dialogue-text" key={activeStory.id+line}>{activeStory.lines[lang==='en'?0:1][line]}</p><div className="dialogue-controls"><span className="dialogue-dots">{activeStory.lines[lang==='en'?0:1].map((_,i)=><i key={i} className={i===line?'active':''}/>)}</span><button className="dialogue-next" onClick={()=>{if(line<activeStory.lines[lang==='en'?0:1].length-1)setLine(l=>l+1);else finishStory()}}>{line<activeStory.lines[lang==='en'?0:1].length-1?t.continue:t.exit} <ArrowRight size={16}/></button></div></section></div>}
   {linksOpen&&<div className="overlay" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setLinksOpen(false)}}><section className="links-modal" role="dialog" aria-modal="true" aria-label={t.linkTitle}><div className="dialogue-bar"><span>✦ {t.linkTitle}</span><button className="close-modal" onClick={()=>setLinksOpen(false)} aria-label={t.exit}><X size={18}/></button></div><h2>LET’S CONNECT.</h2><p>{t.notready}</p><a className="external-link" href={github} target="_blank" rel="noopener noreferrer"><Github size={20}/> GitHub <ExternalLink size={16}/></a><div className="disabled-link"><BookOpen size={20}/>{t.portfolio}</div><a className="external-link" href={linkedin} target="_blank" rel="noopener noreferrer"><Code2 size={20}/> LinkedIn <ExternalLink size={16}/></a><button className="modal-return" onClick={()=>setLinksOpen(false)}><X size={15}/>{t.exit}</button></section></div>}
-  {spaceOpen&&<SpaceQuest lang={lang} onClose={()=>setSpaceOpen(false)} onStart={()=>setGameStarted(true)} onMilestone={tier=>setGameTier(old=>Math.max(old,tier))} onWin={()=>setSpaceWon(true)} onViewAchievements={()=>{setSpaceOpen(false);openCodex('gamer')}}/>} 
-  {sharkOpen&&<SharkMaze lang={lang} onClose={()=>setSharkOpen(false)} onStart={()=>setFieldStarted(true)} onWin={()=>setSharkWon(true)} onViewAchievements={()=>{setSharkOpen(false);openCodex('learner')}} owned={outfits} onCollect={item=>setOutfits(p=>p.includes(item)?p:[...p,item])}/>} 
-  {labOpen&&<LabClicker lang={lang} onClose={()=>setLabOpen(false)} onViewAchievements={()=>{setLabOpen(false);openCodex('builder')}} onStart={()=>{}} onUnlock={tier=>setLabTier(old=>Math.max(old,tier))} initialTier={labTier}/>}
+  {spaceOpen&&<SpaceQuest lang={lang} onClose={()=>setSpaceOpen(false)} onStart={()=>setGameStarted(true)} onMilestone={tier=>setGameTier(old=>Math.max(old,tier))} onWin={()=>setSpaceWon(true)} onViewAchievements={()=>showUnlockPreview('gamer')}/>} 
+  {sharkOpen&&<SharkMaze lang={lang} onClose={()=>setSharkOpen(false)} onStart={()=>setFieldStarted(true)} onWin={()=>setSharkWon(true)} onViewAchievements={()=>showUnlockPreview('learner')} owned={outfits} onCollect={item=>setOutfits(p=>p.includes(item)?p:[...p,item])}/>} 
+  {labOpen&&<LabClicker lang={lang} onClose={()=>setLabOpen(false)} onViewAchievements={()=>showUnlockPreview('builder')} onStart={()=>{}} onUnlock={tier=>setLabTier(old=>Math.max(old,tier))} initialTier={labTier}/>}
+  {unlockPreview&&<CharacterUnlockPreview lang={lang} group={unlockPreview} progress={progress} onAcknowledge={()=>setUnlockPreview(null)}/>}
   <nav className="mobile-nav" aria-label="Navigation"><button onClick={()=>setScreen('home')} className={screen==='home'?'active':''}><Compass size={18}/>HOME</button><button onClick={()=>setScreen('map')} className={screen==='map'?'active':''}><Map size={18}/>MAP</button><button onClick={()=>openCodex()} className={screen==='codex'?'active':''}><BookOpen size={18}/>CODEX</button><button onClick={()=>setLinksOpen(true)}><ExternalLink size={18}/>LINKS</button></nav>
  </div>
 }
