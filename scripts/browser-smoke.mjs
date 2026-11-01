@@ -7,6 +7,7 @@ const HOST = 'http://127.0.0.1:5173'
 const server = spawn('npm', ['run', 'dev', '--', '--host', '127.0.0.1', '--port', '5173', '--strictPort'], {
   stdio: ['ignore', 'pipe', 'pipe'],
   env: { ...process.env, BROWSER: 'none' },
+  detached: true,
 })
 let serverOutput = ''
 server.stdout.on('data', b => { serverOutput += b.toString() })
@@ -50,5 +51,8 @@ try {
   }
 } finally {
   if (browser) await browser.close()
-  server.kill('SIGTERM')
+  // npm runs Vite as a child; terminate the entire process group to avoid CI hanging.
+  try { process.kill(-server.pid, 'SIGTERM') } catch { server.kill('SIGTERM') }
+  server.stdout.destroy()
+  server.stderr.destroy()
 }
