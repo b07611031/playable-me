@@ -69,12 +69,12 @@ try {
 
     // Locked Gamer and Learner characters should navigate to their respective stations.
     await page.getByRole('button',{name:/Open nine-character codex/i}).click()
-    await page.getByRole('button',{name:/GAMER 0\\/3/i}).click()
+    await page.getByRole('button',{name:/^GAMER/i}).click()
     await page.locator('.codex-locked').first().click()
     await page.getByRole('button',{name:/GO TO GAME ROOM/i}).click()
     await page.locator('.zone-heading h1').filter({hasText:/GAME ROOM/i}).waitFor()
     await page.getByRole('button',{name:/Open nine-character codex/i}).click()
-    await page.getByRole('button',{name:/LEARNER 0\\/3/i}).click()
+    await page.getByRole('button',{name:/^LEARNER/i}).click()
     await page.locator('.codex-locked').first().click()
     await page.getByRole('button',{name:/GO TO QUEST FIELD/i}).click()
     await page.locator('.zone-heading h1').filter({hasText:/QUEST FIELD/i}).waitFor()
