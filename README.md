@@ -19,7 +19,7 @@ Requires Node.js 22+.
 
 ```bash
 npm install
-npm run dev
+npm run dev  # opens locally at http://localhost:5173/
 npm run build
 npm run preview
 ```
@@ -51,3 +51,71 @@ No analytics, tracking cookies or backend. Progress is local. The CSS-based scen
 ## Next iteration: interactions first, visual polish second
 
 See [the versioned interaction roadmap, saved UI Skill references, and A/B/C comparison plan](docs/roadmap-ui-experiment.md). The named Taste-Skill and Impact-Cable projects have not yet been independently verified or installed. The user-approved MVP remains the comparison baseline.
+
+## YUN CODEX — nine collectible identities
+
+The [character design and implementation specification](docs/yun-codex-spec-v1.md) maps each of 9 original pixel-art costumes to a real, bilingual story.
+
+- Builder: Student Yun, Researcher Yun, Engineer Yun (AI Lab milestone tiers 5/12/22).
+- Learner: Diver Yun, Boxer Yun, Explorer Yun (Ocean Maze mask/gloves/boots).
+- Gamer: Pilot Yun, Shadow Support Yun, Tactical Yun (Spaceship Dodge 2/5 dodges and full victory).
+- Locked cards show dark silhouettes with question marks; unlocked cards reveal origin stories, evidence and learned skills.
+- Open the codex anytime from the header, zone pages or mobile navigation.
+- New local keys: `pm-lab-tier` and `pm-game-tier`; `pm-outfits` and `pm-opened` are retained.
+- Winning a mini-game now opens the relevant codex section. Reading or skipping gameplay **never** awards character costumes.
+
+Validate the character schema/story linkages before publishing:
+
+```bash
+npm run test:maze
+npm run test:codex
+npm run build
+```
+
+This feature does not include design-skill-based UI polishing. Follow the planned controlled A/B/C screenshot comparison after game mechanics are approved.
+
+## Local dev white-screen fix (PR #5)
+
+Local Vite now uses `base: '/'` in dev and `base: '/playable-me/'` for production builds (GitHub Pages). Open **http://localhost:5173/** after `npm run dev`, not the GitHub Pages subpath.
+
+Update your local branch before testing:
+
+```bash
+git fetch origin
+git switch feat/yun-codex-nine-roles
+git pull --ff-only
+npm install
+npm run dev
+```
+
+The repository's CI now runs a **real Chromium browser smoke test** at desktop 1440×900 and mobile 390×844: homepage → world map → YUN CODEX → reload, checking the browser console for errors. This goes beyond `npm run build` (which only verifies production compilation). See `scripts/browser-smoke.mjs`.
+
+## Windows blank screen & LAN Vite HMR troubleshooting
+
+**Root cause of the earlier blank screen:** Windows case-insensitive path resolution could select `src/codex.ts` when an extensionless import requested `src/Codex.tsx`. The data module did not have a default export. We renamed the UI file to **`src/CharacterCodex.tsx`** and changed the import in `App.tsx`; the old case-colliding file is deleted. CI now runs `npm run test:case` to detect this class of cross-platform collision.
+
+**Update your Windows checkout:**
+
+```powershell
+git fetch origin
+git switch feat/yun-codex-nine-roles
+git pull --ff-only
+npm install
+npm run test:case
+npm run dev -- --force
+```
+
+In DevTools > Network, verify `/src/CharacterCodex.tsx` loads correctly. After updating, hard-refresh (Ctrl+Shift+R) if an old Vite transformed module is cached. Do not remove local or uncommitted files without checking `git status`.
+
+**Remote browser accessing `http://10.0.1.26:5173/`:** if WebSocket HMR still tries `localhost` or fails, start Vite with a host the browser can reach (replace with the address shown in the browser URL):
+
+```powershell
+$env:VITE_HMR_HOST='10.0.1.26'
+npm run dev -- --force
+```
+
+Bash equivalent: `VITE_HMR_HOST=10.0.1.26 npm run dev -- --force`.
+
+Vite binds to `0.0.0.0:5173`, uses a fixed port and exposes an optional HMR hostname via `VITE_HMR_HOST`. If HTTP succeeds but WebSocket still fails, check that your reverse proxy/SSH forwarding, firewall or network setup supports WebSocket upgrades. **This is separate from the `codex.ts` import error**; a failed HMR connection normally affects hot reload, not initial React rendering. Only expose the development server to trusted local networks.
+
+CI now verifies `npm run test:case`, `npm run test:codex`, `npm run test:maze`, `npm run build`, and a headless Chromium browser smoke test on desktop and mobile.

@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { RotateCcw, X, Zap } from 'lucide-react'
-type Props={lang:'en'|'zh';onClose:()=>void;onStart:()=>void;onUnlock:(tier:number)=>void;initialTier:number}
+type Props={lang:'en'|'zh';onClose:()=>void;onViewAchievements:()=>void;onStart:()=>void;onUnlock:(tier:number)=>void;initialTier:number}
 const thresholds=[5,12,22]
 const projects=[['Plantman','Plantman'],['Long-video tracking','長影片追蹤'],['SOP Annotator','SOP Annotator']] as const
-export default function LabClicker({lang,onClose,onStart,onUnlock,initialTier}:Props){
+export default function LabClicker({lang,onClose,onViewAchievements,onStart,onUnlock,initialTier}:Props){
  const zh=lang==='zh'
  const [running,setRunning]=useState(false)
  const [succeeded,setSucceeded]=useState(false)
@@ -38,7 +38,7 @@ export default function LabClicker({lang,onClose,onStart,onUnlock,initialTier}:P
    <div className="lab-milestones">{thresholds.map((n,i)=><span key={n} className={Math.max(tier,best)>i?'earned':''}>{Math.max(tier,best)>i?'✓':'🔒'} <strong>{projects[i][zh?1:0]}</strong><small>{n} {zh?'次':'taps'}</small></span>)}</div>
    <button className={'lab-tap '+(running?'lab-running':'')} disabled={!running} onClick={tap} aria-label={zh?'點擊輸出能量':'Tap to generate energy'}><Zap size={42}/><strong>{running?(zh?'快速點擊！':'TAP!'):(zh?'AI 充電器':'AI GENERATOR')}</strong><span>{zh?'每次點擊都在累積能量':'EVERY TAP GENERATES ENERGY'}</span></button>
    {succeeded&&<div className="mini-success" role="status">🏆 {zh?'成功！三項 AI 專案已解鎖。':'Success! All three AI projects unlocked.'}</div>}
-   {!running&&(succeeded?<button className="space-start" onClick={onClose}>{zh?'成功！查看解鎖成果':'SUCCESS! VIEW ACHIEVEMENTS'}</button>:<button className="space-start" onClick={start}>{seconds===12&&clicks===0?(zh?'開始 12 秒挑戰':'START 12-SECOND RUN'):<><RotateCcw size={16}/>{zh?'再挑戰一次':'TRY AGAIN'}</>}</button>)}
+   {!running&&(succeeded?<button className="space-start" onClick={onViewAchievements}>{zh?'成功！查看解鎖角色':'SUCCESS! SEE UNLOCKED CHARACTERS'}</button>:<button className="space-start" onClick={start}>{seconds===12&&clicks===0?(zh?'開始 12 秒挑戰':'START 12-SECOND RUN'):<><RotateCcw size={16}/>{zh?'再挑戰一次':'TRY AGAIN'}</>}</button>)}
    <button className="space-skip" onClick={onClose}>{zh?'返回 AI 研究室':'BACK TO AI LAB'}</button>
    <p className="space-tip">{zh?'解鎖條件：5 / 12 / 22 次。成績保留於這次瀏覽；不必拿滿分才能使用專業連結。':'Unlock tiers at 5 / 12 / 22 taps. Professional links never require a game score.'}</p>
   </section>

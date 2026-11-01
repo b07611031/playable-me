@@ -1,0 +1,353 @@
+[
+  {
+    "id": "student",
+    "group": "builder",
+    "storyId": "plantman",
+    "unlock": {
+      "kind": "lab",
+      "level": 1
+    },
+    "name": {
+      "en": "Student Yun",
+      "zh": "學生 Yun"
+    },
+    "classTag": {
+      "en": "THE CURIOUS RESEARCHER",
+      "zh": "從好奇心出發的研究者"
+    },
+    "skill": {
+      "en": "Observe → Experiment",
+      "zh": "觀察 → 驗證"
+    },
+    "intro": {
+      "en": "My master's research started with a question: could AI make plant health support more accessible?",
+      "zh": "研究所時，我開始思考：AI 能不能讓植物健康辨識更容易被一般人使用？"
+    },
+    "evidence": {
+      "en": "Plantman combined computer vision, smartphone use and a LINE bot to bring tomato disease research closer to everyday scenarios.",
+      "zh": "Plantman 結合電腦視覺、手機與 LINE Bot，嘗試讓番茄病害研究走向實際使用情境。"
+    },
+    "takeaway": {
+      "en": "Research matters when it can reach someone outside the lab.",
+      "zh": "研究的價值，不只在論文指標，也在能否走出實驗室。"
+    },
+    "detail": {
+      "en": "Evidence: NTU master's research · Plantman",
+      "zh": "經歷：臺大碩士研究 · Plantman"
+    },
+    "costume": "student",
+    "symbol": "🌱"
+  },
+  {
+    "id": "researcher",
+    "group": "builder",
+    "storyId": "sam",
+    "unlock": {
+      "kind": "lab",
+      "level": 2
+    },
+    "name": {
+      "en": "Researcher Yun",
+      "zh": "研究員 Yun"
+    },
+    "classTag": {
+      "en": "THE RESOURCEFUL OPTIMIZER",
+      "zh": "在限制中找解法的研究者"
+    },
+    "skill": {
+      "en": "Decompose → Optimize",
+      "zh": "拆解 → 優化"
+    },
+    "intro": {
+      "en": "When GPU memory limits long-video tracking, I don't stop at the constraint. I rethink the processing flow.",
+      "zh": "長影片追蹤碰到 GPU 記憶體限制時，我會重新拆解流程，而不只是說做不到。"
+    },
+    "evidence": {
+      "en": "I explored chunked SAM2 video tracking and memory management to make longer workflows practical on constrained GPUs.",
+      "zh": "我透過 SAM2 分段追蹤與記憶體管理，嘗試讓有限 GPU 資源也能支援更長的影片流程。"
+    },
+    "takeaway": {
+      "en": "Progress often comes from changing the approach, not just adding hardware.",
+      "zh": "進展有時來自重新設計方法，而不是單純增加硬體。"
+    },
+    "detail": {
+      "en": "Evidence: SAM2 long-video tracking · performance tuning",
+      "zh": "經歷：SAM2 長影片追蹤 · 效能優化"
+    },
+    "costume": "researcher",
+    "symbol": "🔬"
+  },
+  {
+    "id": "engineer",
+    "group": "builder",
+    "storyId": "workflow",
+    "unlock": {
+      "kind": "lab",
+      "level": 3
+    },
+    "name": {
+      "en": "Engineer Yun",
+      "zh": "軟體工程師 Yun"
+    },
+    "classTag": {
+      "en": "THE PRACTICAL BUILDER",
+      "zh": "讓想法真正落地的實作者"
+    },
+    "skill": {
+      "en": "Listen → Build → Iterate",
+      "zh": "傾聽 → 實作 → 迭代"
+    },
+    "intro": {
+      "en": "Before building an AI tool, I start by understanding what the people using it actually need.",
+      "zh": "做 AI 工具之前，我會先了解第一線使用者真正要解決什麼問題。"
+    },
+    "evidence": {
+      "en": "In manufacturing AI projects, I turn ambiguous operational needs into testable steps, lightweight tools and feedback-driven revisions.",
+      "zh": "在製造業 AI 專案中，我把模糊的現場需求整理成可驗證步驟、可使用工具，再根據回饋調整。"
+    },
+    "takeaway": {
+      "en": "A working solution beats a sophisticated demo nobody uses.",
+      "zh": "能被真正使用的方案，比只有技術展示的原型更有價值。"
+    },
+    "detail": {
+      "en": "Evidence: manufacturing AI implementation · workflow tools",
+      "zh": "經歷：製造業 AI 導入 · 工作流程工具"
+    },
+    "costume": "engineer",
+    "symbol": "🛠️"
+  },
+  {
+    "id": "diver",
+    "group": "learner",
+    "storyId": "water",
+    "unlock": {
+      "kind": "outfit",
+      "level": 1
+    },
+    "name": {
+      "en": "Diver Yun",
+      "zh": "潛水員 Yun"
+    },
+    "classTag": {
+      "en": "THE CALM EXPLORER",
+      "zh": "在陌生環境保持冷靜"
+    },
+    "skill": {
+      "en": "Learn → Assess Risk",
+      "zh": "學習 → 風險判斷"
+    },
+    "intro": {
+      "en": "Underwater, curiosity needs to be balanced with preparation, awareness and respect for limits.",
+      "zh": "在水下，光有好奇心不夠，還需要事前準備、環境觀察與尊重風險。"
+    },
+    "evidence": {
+      "en": "I learned scuba and freediving and trained as a lifeguard—different skills, all built on deliberate practice and safety.",
+      "zh": "我接觸水肺潛水、自由潛水，也接受救生員訓練。不同技能都需要扎實練習與安全意識。"
+    },
+    "takeaway": {
+      "en": "Adaptability means learning the rules of a new environment before pushing forward.",
+      "zh": "適應未知，先理解環境與規則，再逐步拓展能力。"
+    },
+    "detail": {
+      "en": "Evidence: PADI OW · AIDA 2 · certified lifeguard",
+      "zh": "經歷：PADI OW · AIDA 2 · 救生員資格"
+    },
+    "costume": "diver",
+    "symbol": "🤿"
+  },
+  {
+    "id": "boxer",
+    "group": "learner",
+    "storyId": "arena",
+    "unlock": {
+      "kind": "outfit",
+      "level": 2
+    },
+    "name": {
+      "en": "Boxer Yun",
+      "zh": "拳擊手 Yun"
+    },
+    "classTag": {
+      "en": "THE FEEDBACK-DRIVEN FIGHTER",
+      "zh": "靠回饋持續進步"
+    },
+    "skill": {
+      "en": "Practice → Adjust → Repeat",
+      "zh": "練習 → 修正 → 再挑戰"
+    },
+    "intro": {
+      "en": "In the ring, every mistake becomes immediate feedback. Improvement comes from using it.",
+      "zh": "站上擂台，每個失誤都會得到直接回饋；關鍵是下一次怎麼調整。"
+    },
+    "evidence": {
+      "en": "I won freshman competitions in Sanda and fencing, and continue challenging myself through boxing and bouldering.",
+      "zh": "我曾獲得散打與擊劍新生盃冠軍，也持續透過拳擊、抱石挑戰自己。"
+    },
+    "takeaway": {
+      "en": "Resilience is not ignoring failure; it's training for the next attempt.",
+      "zh": "韌性不是忽略失敗，而是把回饋帶進下一次練習。"
+    },
+    "detail": {
+      "en": "Evidence: Sanda & fencing freshman champions · boxing",
+      "zh": "經歷：散打與擊劍新生盃冠軍 · 拳擊"
+    },
+    "costume": "boxer",
+    "symbol": "🥊"
+  },
+  {
+    "id": "explorer",
+    "group": "learner",
+    "storyId": "camino",
+    "unlock": {
+      "kind": "outfit",
+      "level": 3
+    },
+    "name": {
+      "en": "Explorer Yun",
+      "zh": "探險家 Yun"
+    },
+    "classTag": {
+      "en": "THE STEADY ADVENTURER",
+      "zh": "穩定前進的探索者"
+    },
+    "skill": {
+      "en": "Persist → Recalibrate",
+      "zh": "持續 → 調整節奏"
+    },
+    "intro": {
+      "en": "A long journey doesn't require knowing every step from the start—just the willingness to keep learning along the way.",
+      "zh": "長途旅行不需要一開始就知道所有答案，但需要願意每天前進、邊走邊調整。"
+    },
+    "evidence": {
+      "en": "Walking the Camino de Santiago taught me how much progress depends on pace, flexibility and showing up each day.",
+      "zh": "走 Camino de Santiago 朝聖之路時，我學到如何安排節奏、適應變化，並在長程目標中持續前進。"
+    },
+    "takeaway": {
+      "en": "Big goals become manageable when you focus on the next meaningful step.",
+      "zh": "很大的目標，可以從下一個可行步驟開始。"
+    },
+    "detail": {
+      "en": "Evidence: Camino de Santiago journey",
+      "zh": "經歷：Camino de Santiago 朝聖之路"
+    },
+    "costume": "explorer",
+    "symbol": "🥾"
+  },
+  {
+    "id": "pilot",
+    "group": "gamer",
+    "storyId": "spaceship",
+    "unlock": {
+      "kind": "game",
+      "level": 1
+    },
+    "name": {
+      "en": "Pilot Yun",
+      "zh": "飛行員 Yun"
+    },
+    "classTag": {
+      "en": "THE GAME-MADE CODER",
+      "zh": "因為遊戲而開始寫程式"
+    },
+    "skill": {
+      "en": "Play → Create",
+      "zh": "遊玩 → 創作"
+    },
+    "intro": {
+      "en": "Before AI, before engineering work, there was a simple 2D spaceship game.",
+      "zh": "在 AI 與工程工作之前，最早讓我開始寫程式的是一款簡單的 2D 太空船遊戲。"
+    },
+    "evidence": {
+      "en": "In high school, I joined a software seed training program, and my first programming assignment was to build a spaceship game.",
+      "zh": "高中時，我主動參加軟體種子培訓計畫，第一個作業就是製作 2D 太空船遊戲。"
+    },
+    "takeaway": {
+      "en": "Games are not an add-on to my career story. They are where it began.",
+      "zh": "遊戲不是履歷上的額外興趣，而是我開始接觸程式的原因。"
+    },
+    "detail": {
+      "en": "Evidence: high-school software training · first 2D game",
+      "zh": "經歷：高中軟體培訓 · 第一款 2D 遊戲"
+    },
+    "costume": "pilot",
+    "symbol": "🚀"
+  },
+  {
+    "id": "support",
+    "group": "gamer",
+    "storyId": "pyke",
+    "unlock": {
+      "kind": "game",
+      "level": 2
+    },
+    "name": {
+      "en": "Shadow Support Yun",
+      "zh": "暗影輔助 Yun"
+    },
+    "classTag": {
+      "en": "THE TEAM PLAYMAKER",
+      "zh": "創造團隊機會的人"
+    },
+    "skill": {
+      "en": "Vision → Timing → Teamwork",
+      "zh": "視野 → 時機 → 合作"
+    },
+    "intro": {
+      "en": "My favorite support role is about shaping the fight before it starts.",
+      "zh": "我喜歡的輔助玩法，不是被動保護隊友，而是先創造好的戰鬥條件。"
+    },
+    "evidence": {
+      "en": "Playing Pyke in League of Legends taught me to think about vision control, roaming and choosing when to engage for the team.",
+      "zh": "在英雄聯盟玩派克時，我特別在意視野、遊走，以及判斷何時為團隊開戰。"
+    },
+    "takeaway": {
+      "en": "Leadership can mean helping the team win without being the center of attention.",
+      "zh": "領導有時不是自己成為最亮眼的人，而是創造讓團隊成功的條件。"
+    },
+    "detail": {
+      "en": "Evidence: League of Legends · support/jungle · Pyke main",
+      "zh": "經歷：英雄聯盟 · 輔助／打野 · 派克玩家"
+    },
+    "costume": "support",
+    "symbol": "🗡️"
+  },
+  {
+    "id": "tactical",
+    "group": "gamer",
+    "storyId": "cs",
+    "unlock": {
+      "kind": "game",
+      "level": 3
+    },
+    "name": {
+      "en": "Tactical Yun",
+      "zh": "戰術隊員 Yun"
+    },
+    "classTag": {
+      "en": "THE PLAYER-EXPERIENCE OBSERVER",
+      "zh": "關注玩家體驗的觀察者"
+    },
+    "skill": {
+      "en": "Observe → Ask Why",
+      "zh": "觀察 → 追問原因"
+    },
+    "intro": {
+      "en": "I keep returning to games with friends. The people we play with are often part of what makes a game memorable.",
+      "zh": "我常因為朋友相約而回到遊戲。遊戲吸引人的地方，有時也是一起玩的那些人。"
+    },
+    "evidence": {
+      "en": "In CS2, I enjoy the coordination and social side of competitive play. It sparked an interest in why players return and what makes multiplayer experiences stick.",
+      "zh": "在 CS2，我喜歡競技協作，也留意朋友連線如何影響玩家回流，以及多人遊戲的吸引力。"
+    },
+    "takeaway": {
+      "en": "A game is a system—and an experience shared between people.",
+      "zh": "遊戲既是一套系統，也是玩家與玩家之間共同創造的體驗。"
+    },
+    "detail": {
+      "en": "Evidence: CS2 with friends · interest in game operations",
+      "zh": "經歷：CS2 朋友連線 · 對遊戲營運的興趣"
+    },
+    "costume": "tactical",
+    "symbol": "🎯"
+  }
+]

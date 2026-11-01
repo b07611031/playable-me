@@ -3,10 +3,13 @@ import { ArrowLeft, ArrowRight, BookOpen, Check, ChevronRight, Code2, Compass, E
 import SpaceQuest from './SpaceQuest'
 import SharkMaze from './SharkMaze'
 import LabClicker from './LabClicker'
+import Codex from './CharacterCodex'
+import CharacterUnlockPreview from './CharacterUnlockPreview'
+import {countUnlocked, type Group, type Progress} from './codex'
 
 type Lang = 'en' | 'zh'
 type ZoneId = 'lab' | 'field' | 'game'
-type Screen = 'home' | 'map' | 'zone' | 'ending'
+type Screen = 'home' | 'map' | 'zone' | 'ending' | 'codex'
 type Story = { id:string; emoji:string; title:[string,string]; teaser:[string,string]; lines:[string[],string[]] }
 type Zone = { id:ZoneId; icon:string; name:[string,string]; trait:[string,string]; accent:string; stories:Story[] }
 
@@ -35,6 +38,7 @@ const labels = {
   zh:{start:'開始探索',map:'世界地圖',welcome:'歡迎，冒險者',intro:'嗨，我是 Yun。我用 AI 解決問題，喜歡動手學習，也從寫下第一行程式以前就熱愛遊戲。',hint:'選擇一個目的地，每個地方都藏著一段我的故事。',explore:'進入探索',seen:'已探索',completed:'解鎖成就！',finish:'完成所有冒險',ending:'下一段冒險，從一場對話開始。',back:'返回地圖',again:'重新開始',about:'關於這個世界',links:'聯絡與履歷',portfolio:'履歷即將提供',progress:'徽章',dialogue:'故事',continue:'下一段',exit:'關閉',skip:'略過介紹',chapter:'篇章',view:'閱讀故事',return:'返回',summary:'你認識了 YUN',revisit:'繼續探索',hint2:'點擊物品閱讀故事，探索此區域三個故事即可獲得徽章。',read:'故事',notready:'履歷連結將於公開發布前補上。',linkTitle:'專業連結',github:'GITHUB',sound:'目前版本沒有音效'}
 }
 const readSaved = (key:string): string[] => {try {const v=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(v)?v.filter((x):x is string=>typeof x==='string'):[]}catch{return []}}
+const readTier=(key:string):number=>{try{const n=Number(localStorage.getItem(key));return Number.isInteger(n)&&n>=0&&n<=3?n:0}catch{return 0}}
 const readOutfits = ():number[] => {try {const v=JSON.parse(localStorage.getItem('pm-outfits')||'[]');return Array.isArray(v)?v.filter((n):n is number=>Number.isInteger(n)&&n>=0&&n<3):[]}catch{return []}}
 function PixelAvatar({large=false}:{large?:boolean}){return <div className={'pixel-avatar '+(large?'large':'')} aria-label="Pixel art character of Yun" role="img"><span className="hair"/><span className="face"/><span className="eyes"/><span className="shirt"/><span className="legs"/></div>}
 function PixelScene({zone, stories, completed, lang, onInteract}:{zone:ZoneId; stories:Story[]; completed:string[]; lang:Lang; onInteract:(story:Story)=>void}){return <div className={'scene-art scene-'+zone} role="group" aria-label={lang==='zh'?'可互動的像素場景':'Interactive pixel scene'}><div className="scene-sky" aria-hidden="true"><i/><i/><i/></div>{zone==='lab'?<><div className="pixel-window">✦</div><div className="scene-desk"><div className="monitor"><span> &gt;_ </span></div><div className="keyboard"/></div><div className="plant">✿</div></>:zone==='field'?<><div className="mountain-one"/><div className="mountain-two"/><div className="pine pine-a">♠</div><div className="pine pine-b">♠</div><div className="lake"/></>:<><div className="arcade arcade-a"><div>★</div><span>PLAY</span></div><div className="arcade arcade-b"><div>🚀</div><span>START</span></div><div className="neon-star">✧</div></>}<div className="ground"/><div className="scene-character"><PixelAvatar/></div><div className="scene-hotspots">{stories.map((story,i)=><button type="button" key={story.id} className={`scene-hotspot hotspot-${zone}-${i} ${completed.includes(story.id)?'hotspot-read':''}`} onClick={()=>onInteract(story)} aria-label={`${lang==='zh'?'探索':'Explore'}: ${tr(story.title,lang)}`} title={tr(story.title,lang)}><span className="hotspot-sprite" aria-hidden="true">{story.emoji}</span><span className="hotspot-label">{completed.includes(story.id)?'✓ ':'✦ '}{tr(story.title,lang)}</span></button>)}</div></div>}
@@ -54,7 +58,10 @@ function App(){
  const [sharkWon,setSharkWon]=useState(false)
  const [outfits,setOutfits]=useState<number[]>(readOutfits)
  const [labOpen,setLabOpen]=useState(false)
- const [labTier,setLabTier]=useState(0)
+ const [labTier,setLabTier]=useState(()=>readTier('pm-lab-tier'))
+ const [gameTier,setGameTier]=useState(()=>readTier('pm-game-tier'))
+ const [codexGroup,setCodexGroup]=useState<Group|'all'>('all')
+ const [unlockPreview,setUnlockPreview]=useState<Group|null>(null)
  const [skipGames,setSkipGames]=useState<Record<ZoneId,boolean>>({lab:false,field:false,game:false})
  const t=labels[lang]
  const zone=zones.find(z=>z.id===zoneId)!
@@ -62,47 +69,41 @@ function App(){
  const badges=zones.filter(zoneComplete).length
  useEffect(()=>{try{localStorage.setItem('pm-opened',JSON.stringify(opened))}catch{}},[opened])
  useEffect(()=>{try{localStorage.setItem('pm-outfits',JSON.stringify(outfits))}catch{}},[outfits])
+ useEffect(()=>{try{localStorage.setItem('pm-lab-tier',String(labTier))}catch{}},[labTier])
+ useEffect(()=>{try{localStorage.setItem('pm-game-tier',String(gameTier))}catch{}},[gameTier])
  useEffect(()=>{try{localStorage.setItem('pm-lang',lang)}catch{};document.documentElement.lang=lang==='zh'?'zh-TW':'en'},[lang])
  useEffect(()=>{const onKey=(e:KeyboardEvent)=>{if(e.key==='Escape' && !spaceOpen){setActiveStory(null);setLinksOpen(false)} };window.addEventListener('keydown',onKey);return()=>window.removeEventListener('keydown',onKey)},[spaceOpen])
  const openStory=(s:Story)=>{setActiveStory(s);setLine(0)}
  const finishStory=()=>{if(activeStory){const id=activeStory.id;setOpened(prev=>prev.includes(id)?prev:[...prev,id])}setActiveStory(null)}
  const goMap=()=>{setActiveStory(null);setScreen(badges===3?'ending':'map')}
- const reset=()=>{setOpened([]);setScreen('home');setActiveStory(null)}
+ const reset=()=>{setOpened([]);setLabTier(0);setGameTier(0);setOutfits([]);setGameStarted(false);setFieldStarted(false);setSpaceWon(false);setSharkWon(false);setSkipGames({lab:false,field:false,game:false});setScreen('home');setActiveStory(null)}
  const completed=zoneComplete(zone)
- const unlockedCount=skipGames[zone.id]?3:zone.id==='game'?(gameStarted?3:0):zone.id==='field'?(fieldStarted?3:0):labTier
+ const progress:Progress={labTier,gameTier,outfits}
+ const codexCount=countUnlocked(progress)
+ const openCodex=(group:Group|'all'='all')=>{setUnlockPreview(null);setCodexGroup(group);setScreen('codex')}
+ const goToStation=(group:Group)=>{setZoneId(group==='builder'?'lab':group==='learner'?'field':'game');setScreen('zone');setActiveStory(null)}
+ const showUnlockPreview=(group:Group)=>{setSpaceOpen(false);setSharkOpen(false);setLabOpen(false);goToStation(group);setUnlockPreview(group)}
+ const unlockedCount=skipGames[zone.id]?3:zone.id==='game'?((gameStarted||gameTier>0)?3:0):zone.id==='field'?((fieldStarted||outfits.length>0)?3:0):labTier
  const storyAccess=unlockedCount>0
  const launchGame=()=>{if(zone.id==='game')setSpaceOpen(true);else if(zone.id==='field')setSharkOpen(true);else setLabOpen(true)}
  return <div className="app-shell">
   <div className="stars" aria-hidden="true"/>
-  <header className="topbar"><button className="brand" onClick={()=>setScreen('home')} aria-label="Go to start"><span className="brand-icon">✦</span> PLAYABLE<span className="brand-highlight">ME</span><span className="brand-version">v0.3</span></button><div className="header-actions"><span className="badge-count"><Trophy size={15}/> {badges}/3</span><button className="icon-button lang-button" onClick={()=>setLang(lang==='en'?'zh':'en')} aria-label="Change language"><Globe2 size={16}/>{lang==='en'?'中':'EN'}</button><button className="icon-button" onClick={()=>setLinksOpen(true)} aria-label={t.linkTitle}><ExternalLink size={17}/></button></div></header>
+  <header className="topbar"><button className="brand" onClick={()=>setScreen('home')} aria-label="Go to start"><span className="brand-icon">✦</span> PLAYABLE<span className="brand-highlight">ME</span><span className="brand-version">v0.4</span></button><div className="header-actions"><button className="badge-count codex-badge" onClick={()=>openCodex()} aria-label={lang==='zh'?'開啟九角色圖鑑':'Open nine-character codex'}><Trophy size={15}/> {codexCount}/9</button><button className="icon-button codex-header-link" onClick={()=>openCodex()} aria-label="YUN CODEX"><BookOpen size={16}/></button><button className="icon-button lang-button" onClick={()=>setLang(lang==='en'?'zh':'en')} aria-label="Change language"><Globe2 size={16}/>{lang==='en'?'中':'EN'}</button><button className="icon-button" onClick={()=>setLinksOpen(true)} aria-label={t.linkTitle}><ExternalLink size={17}/></button></div></header>
   <main className="main-content">
    {screen==='home'&&<section className="home-screen"><div className="tiny-kicker"><span className="pulse-dot"/> AN INTERACTIVE PORTFOLIO · 2026</div><div className="home-art"><div className="pixel-sun"/><span className="float-star st1">✧</span><span className="float-star st2">✦</span><span className="float-star st3">✧</span><div className="home-platform"/><PixelAvatar large/><span className="home-shadow"/></div><div className="home-copy"><p className="level-tag">PLAYER 001 · ENGINEER / GAMER / EXPLORER</p><h1>THE STORY<br/>OF <em>YUN</em><span className="cursor">_</span></h1><p className="tagline">Started with Games. <span>Built with AI.</span><br/>Always Learning.</p><p className="intro">{t.intro}</p><button className="primary-cta" onClick={()=>setScreen('map')}><Gamepad2 size={19}/>{t.start}<ChevronRight size={20}/></button><button className="secondary-link" onClick={()=>setLinksOpen(true)}>{t.links} <ArrowRight size={15}/></button></div></section>}
    {screen==='map'&&<section className="map-screen"><div className="section-top"><p className="eyebrow">01 / WORLD SELECT</p><h1>{t.map}<span className="title-spark"> ✦</span></h1><p className="section-subtitle">{t.hint}</p></div><div className="world-board"><div className="map-pattern"/><div className="map-route route-one"/><div className="map-route route-two"/><div className="map-player"><PixelAvatar/></div>{zones.map((z,i)=><button key={z.id} className={'world-location node-'+z.id} onClick={()=>{setZoneId(z.id);setScreen('zone')}} style={{'--accent':z.accent} as CSSProperties}><span className={'map-building build-'+z.id}>{z.id==='lab'?'▣':z.id==='field'?'▲':'▤'}</span><span className="map-label">{tr(z.name,lang)}</span><span className="map-check">{zoneComplete(z)?'✓':('0'+(i+1))}</span></button>)}<div className="pixel-trees" aria-hidden="true">♠ ♠<br/>♠ ♠ ♠</div><div className="map-lake" aria-hidden="true">≈ ≈ ≈</div></div><div className="map-footer"><span>✦ {badges}/3 {t.progress}</span><span>CHOOSE A LOCATION ↗</span></div><div className="zone-preview-list">{zones.map(z=><button className="preview-row" key={z.id} onClick={()=>{setZoneId(z.id);setScreen('zone')}}><span className="preview-symbol" style={{color:z.accent}}>{z.icon}</span><span><b>{tr(z.name,lang)}</b><small>{tr(z.trait,lang)}</small></span>{zoneComplete(z)?<Check size={17} className="done-icon"/>:<ChevronRight size={17}/>}</button>)}</div></section>}
+   {screen==='codex'&&<Codex lang={lang} progress={progress} onBack={()=>setScreen('map')} preferredGroup={codexGroup} onGoToStation={goToStation} onStory={id=>{const s=zones.flatMap(z=>z.stories).find(s=>s.id===id);if(s)openStory(s)}}/>}
    {screen==='zone'&&<section className="zone-screen">
     <button className="back-link" onClick={goMap}><ArrowLeft size={16}/>{t.back}</button>
     <div className="zone-heading"><p className="eyebrow">02 / {t.chapter} · {zone.id.toUpperCase()}</p><h1 style={{color:zone.accent}}>{tr(zone.name,lang)}</h1><p>{tr(zone.trait,lang)}</p></div>
     <PixelScene zone={zone.id} stories={zone.stories.slice(0,unlockedCount)} completed={opened} lang={lang} onInteract={openStory}/>
-    {zone.id==='field'&&<section className="learner-collection" aria-label={lang==='zh'?'Yun 角色圖鑑':'Yun outfit collection'}>
-      <div className="learner-collection-title"><strong>THE LEARNER — {lang==='zh'?'角色圖鑑':'CHARACTER COLLECTION'}</strong><span>{outfits.length}/3</span></div>
-      <div className="learner-character-grid">{[
-        {en:'Diver Yun',zh:'潛水員 Yun',symbol:'🤿',kind:'diver'},
-        {en:'Boxer Yun',zh:'拳擊手 Yun',symbol:'🥊',kind:'boxer'},
-        {en:'Explorer Yun',zh:'探險家 Yun',symbol:'🥾',kind:'explorer'}
-      ].map((avatar,i)=><div className={'learner-character '+(outfits.includes(i)?'is-unlocked':'is-locked')} key={avatar.kind}>
-        <div className={'learner-character-art avatar-'+avatar.kind} aria-label={outfits.includes(i)?(lang==='zh'?avatar.zh:avatar.en):(lang==='zh'?'未解鎖角色':'Locked character')}>
-          <span className="learner-figure" aria-hidden="true"><span className="learner-head"/><span className="learner-body"/><span className="learner-accessory">{avatar.symbol}</span></span>
-          {!outfits.includes(i)&&<span className="learner-question">?</span>}
-        </div>
-        <b>{outfits.includes(i)?(lang==='zh'?avatar.zh:avatar.en):'???'}</b>
-        <small>{outfits.includes(i)?(lang==='zh'?'已解鎖':'UNLOCKED'):(lang==='zh'?'尚未解鎖':'LOCKED')}</small>
-      </div>)}</div>
-    </section>}
+    <button className="codex-zone-link" onClick={()=>openCodex(zone.id==='lab'?'builder':zone.id==='field'?'learner':'gamer')}><BookOpen size={17}/>{lang==='zh'?'查看 YUN CODEX 角色圖鑑':'VIEW YUN CODEX CHARACTER GALLERY'} <ArrowRight size={16}/></button>
     <div className="quest-gate">
       <div className="quest-gate-copy">
         <span className="eyebrow">MINI QUEST / {zone.id==='game'?'001':zone.id==='field'?'002':'003'}</span>
         <h2>{zone.id==='game'?'🚀 SPACESHIP DODGE':zone.id==='field'?'🦈 OCEAN MAZE':'⚡ AI POWER-UP LAB'}</h2>
         <p>{zone.id==='game'
-          ?(lang==='zh'?'先玩一局太空船，親眼看到隕石從上方逼近。開始遊戲即可解鎖三張故事卡。':'Play a round of Spaceship Dodge. Meteors visibly fall toward your ship; starting reveals all three stories.')
+          ?(lang==='zh'?'閃避 2 顆、5 顆隕石並完成整場遊戲，可依序解鎖三種 Gamer 角色；故事卡在開始遊戲後就能閱讀。':'Dodge 2 and 5 meteors, then finish the round to reveal three Gamer identities. Stories are available as soon as you start.')
           :zone.id==='field'
           ?(lang==='zh'?'操作 Yun 收集海底珍珠，同時避開鯊魚。開始探索即可看到三張故事卡。':'Guide Yun through an underwater maze while avoiding a shark. Starting reveals the three stories.')
           :(lang==='zh'?'12 秒內連點生成能量！累積 5、12、22 次，逐步解鎖一、二、三張故事卡。':'Tap for 12 seconds! Reach 5, 12 or 22 taps to unlock one, two or three stories.')}</p>
@@ -120,15 +121,16 @@ function App(){
     {completed&&<div className="achievement-unlocked"><Trophy size={24}/><div><b>{t.completed}</b><span>{tr(zone.trait,lang)}</span></div></div>}
     <button className="wide-back" onClick={goMap}>{t.back} <ArrowRight size={18}/></button>
    </section>}
-      {screen==='ending'&&<section className="end-screen"><div className="end-stars">✦ &nbsp; ✧ &nbsp; ✦</div><Trophy size={46} className="end-trophy"/><p className="eyebrow">{t.finish}</p><h1>{t.summary}</h1><p className="end-line">{t.ending}</p><div className="achievement-list">{zones.map(z=><span key={z.id}><Check size={15}/> {tr(z.trait,lang)}</span>)}</div><p className="ending-tag">Started with Games. Built with AI. Always Learning.</p><button className="primary-cta" onClick={()=>setLinksOpen(true)}>{t.links}<ArrowRight size={19}/></button><button className="secondary-link" onClick={()=>setScreen('map')}>{t.revisit}</button><button className="restart-button" onClick={reset}><RotateCcw size={14}/>{t.again}</button></section>}
+      {screen==='ending'&&<section className="end-screen"><div className="end-stars">✦ &nbsp; ✧ &nbsp; ✦</div><Trophy size={46} className="end-trophy"/><p className="eyebrow">{t.finish}</p><h1>{t.summary}</h1><p className="end-line">{t.ending}</p><div className="achievement-list">{zones.map(z=><span key={z.id}><Check size={15}/> {tr(z.trait,lang)}</span>)}</div><p className="ending-tag">Started with Games. Built with AI. Always Learning.</p><button className="primary-cta" onClick={()=>setLinksOpen(true)}>{t.links}<ArrowRight size={19}/></button><button className="secondary-link" onClick={()=>openCodex()}>{lang==='zh'?'查看九角色圖鑑':'VIEW ALL NINE CHARACTERS'}</button><button className="secondary-link" onClick={()=>setScreen('map')}>{t.revisit}</button><button className="restart-button" onClick={reset}><RotateCcw size={14}/>{t.again}</button></section>}
   </main>
   <footer className="site-footer"><span>© YUN · MADE WITH CURIOSITY</span><span><Sparkles size={12}/> PRESS START ON YOUR NEXT IDEA</span></footer>
   {activeStory&&<div className="overlay" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setActiveStory(null)}}><section className="dialogue-modal" role="dialog" aria-modal="true" aria-labelledby="dialog-title"><div className="dialogue-bar"><span>✦ {t.dialogue} · {line+1}/{activeStory.lines[lang==='en'?0:1].length}</span><button className="close-modal" onClick={()=>setActiveStory(null)} aria-label={t.exit}><X size={18}/></button></div><div className="dialogue-person"><span className="object-icon big">{activeStory.emoji}</span><div><p>YUN’S JOURNAL</p><h2 id="dialog-title">{tr(activeStory.title,lang)}</h2></div></div><p className="dialogue-text" key={activeStory.id+line}>{activeStory.lines[lang==='en'?0:1][line]}</p><div className="dialogue-controls"><span className="dialogue-dots">{activeStory.lines[lang==='en'?0:1].map((_,i)=><i key={i} className={i===line?'active':''}/>)}</span><button className="dialogue-next" onClick={()=>{if(line<activeStory.lines[lang==='en'?0:1].length-1)setLine(l=>l+1);else finishStory()}}>{line<activeStory.lines[lang==='en'?0:1].length-1?t.continue:t.exit} <ArrowRight size={16}/></button></div></section></div>}
   {linksOpen&&<div className="overlay" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setLinksOpen(false)}}><section className="links-modal" role="dialog" aria-modal="true" aria-label={t.linkTitle}><div className="dialogue-bar"><span>✦ {t.linkTitle}</span><button className="close-modal" onClick={()=>setLinksOpen(false)} aria-label={t.exit}><X size={18}/></button></div><h2>LET’S CONNECT.</h2><p>{t.notready}</p><a className="external-link" href={github} target="_blank" rel="noopener noreferrer"><Github size={20}/> GitHub <ExternalLink size={16}/></a><div className="disabled-link"><BookOpen size={20}/>{t.portfolio}</div><a className="external-link" href={linkedin} target="_blank" rel="noopener noreferrer"><Code2 size={20}/> LinkedIn <ExternalLink size={16}/></a><button className="modal-return" onClick={()=>setLinksOpen(false)}><X size={15}/>{t.exit}</button></section></div>}
-  {spaceOpen&&<SpaceQuest lang={lang} onClose={()=>setSpaceOpen(false)} onStart={()=>setGameStarted(true)} onWin={()=>setSpaceWon(true)}/>} 
-  {sharkOpen&&<SharkMaze lang={lang} onClose={()=>setSharkOpen(false)} onStart={()=>setFieldStarted(true)} onWin={()=>setSharkWon(true)} owned={outfits} onCollect={item=>setOutfits(p=>p.includes(item)?p:[...p,item])}/>} 
-  {labOpen&&<LabClicker lang={lang} onClose={()=>setLabOpen(false)} onStart={()=>{}} onUnlock={tier=>setLabTier(old=>Math.max(old,tier))} initialTier={labTier}/>}
-  <nav className="mobile-nav" aria-label="Navigation"><button onClick={()=>setScreen('home')} className={screen==='home'?'active':''}><Compass size={18}/>HOME</button><button onClick={()=>setScreen('map')} className={screen==='map'?'active':''}><Map size={18}/>MAP</button><button onClick={()=>setLinksOpen(true)}><ExternalLink size={18}/>LINKS</button></nav>
+  {spaceOpen&&<SpaceQuest lang={lang} onClose={()=>setSpaceOpen(false)} onStart={()=>setGameStarted(true)} onMilestone={tier=>setGameTier(old=>Math.max(old,tier))} onWin={()=>setSpaceWon(true)} onViewAchievements={()=>showUnlockPreview('gamer')}/>} 
+  {sharkOpen&&<SharkMaze lang={lang} onClose={()=>setSharkOpen(false)} onStart={()=>setFieldStarted(true)} onWin={()=>setSharkWon(true)} onViewAchievements={()=>showUnlockPreview('learner')} owned={outfits} onCollect={item=>setOutfits(p=>p.includes(item)?p:[...p,item])}/>} 
+  {labOpen&&<LabClicker lang={lang} onClose={()=>setLabOpen(false)} onViewAchievements={()=>showUnlockPreview('builder')} onStart={()=>{}} onUnlock={tier=>setLabTier(old=>Math.max(old,tier))} initialTier={labTier}/>}
+  {unlockPreview&&<CharacterUnlockPreview lang={lang} group={unlockPreview} progress={progress} onAcknowledge={()=>setUnlockPreview(null)}/>}
+  <nav className="mobile-nav" aria-label="Navigation"><button onClick={()=>setScreen('home')} className={screen==='home'?'active':''}><Compass size={18}/>HOME</button><button onClick={()=>setScreen('map')} className={screen==='map'?'active':''}><Map size={18}/>MAP</button><button onClick={()=>openCodex()} className={screen==='codex'?'active':''}><BookOpen size={18}/>CODEX</button><button onClick={()=>setLinksOpen(true)}><ExternalLink size={18}/>LINKS</button></nav>
  </div>
 }
 export default App

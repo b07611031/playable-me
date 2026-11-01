@@ -14,4 +14,21 @@ jobs:
           node-version: '22'
       - run: npm install --no-audit --no-fund
       - run: npm run test:maze
+      - run: npm run test:case
+      - run: npm run test:codex
       - run: npm run build
+
+  browser-smoke:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-audit --no-fund
+      - name: Install Playwright headless browser
+        run: |
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps --only-shell chromium
+      - name: Verify Vite dev startup and browser navigation
+        run: node scripts/browser-smoke.mjs
