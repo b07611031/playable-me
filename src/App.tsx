@@ -3,7 +3,7 @@ import { ArrowLeft, ArrowRight, BookOpen, Check, ChevronRight, Code2, Compass, E
 import SpaceQuest from './SpaceQuest'
 import SharkMaze from './SharkMaze'
 import LabClicker from './LabClicker'
-import Codex from './Codex'
+import Codex from './CharacterCodex'
 import {countUnlocked, type Group, type Progress} from './codex'
 
 type Lang = 'en' | 'zh'
