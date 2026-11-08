@@ -108,7 +108,7 @@ function App(){
         <p>{zone.id==='game'
           ?(lang==='zh'?'閃避 2 顆、5 顆隕石並完成整場遊戲，可依序解鎖三種 Gamer 角色；故事卡在開始遊戲後就能閱讀。':'Dodge 2 and 5 meteors, then finish the round to reveal three Gamer identities. Stories are available as soon as you start.')
           :zone.id==='field'
-          ?(lang==='zh'?'操作 Yun 收集海底珍珠，同時避開鯊魚。開始探索即可看到三張故事卡。':'Guide Yun through an underwater maze while avoiding a shark. Starting reveals the three stories.')
+          ?(lang==='zh'?'操作 Yun 收集潛水鏡、拳套與探險鞋，同時避開鯊魚。開始探索即可看到三張故事卡。':'Guide Yun through an underwater maze, collecting a dive mask, gloves and explorer boots while avoiding the shark. Starting reveals the three stories.')
           :(lang==='zh'?'12 秒內連點生成能量！累積 5、12、22 次，逐步解鎖一、二、三張故事卡。':'Tap for 12 seconds! Reach 5, 12 or 22 taps to unlock one, two or three stories.')}</p>
         {zone.id==='game'&&spaceWon&&<span className="mini-win">✓ {lang==='zh'?'太空船挑戰完成':'SPACESHIP CLEARED'}</span>}
         {zone.id==='field'&&sharkWon&&<span className="mini-win">✓ {lang==='zh'?'成功躲避鯊魚':'OCEAN MAZE CLEARED'}</span>}
