@@ -1,7 +1,7 @@
 name: Build check
 on:
   push:
-    branches: [main, 'feat/**']
+    branches: [main, 'feat/**', 'release/**']
   pull_request:
     branches: [main]
 jobs:
@@ -17,6 +17,7 @@ jobs:
       - run: npm run test:case
       - run: npm run test:codex
       - run: npm run build
+      - run: npm run test:dist
 
   browser-smoke:
     runs-on: ubuntu-24.04
