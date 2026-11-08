@@ -80,8 +80,9 @@ try {
     assert.equal(await page.locator('.story-card:not(.story-locked)').count(),3,'All three unlocked stories remain accessible')
     assert.equal(await page.locator('.story-status.is-done').count(),3,'Reading three stories records completion')
     assert.equal(await page.locator('.role-story-card .story-character-portrait').count(),3,'Every Station story card has a matching character')
-    assert.match(await page.locator('.role-story-card').first().innerText(),/Student Yun[\\s\\S]*Plantman/i,
-      'Story card must visually connect character with linked project')
+    const firstRoleStory=await page.locator('.role-story-card').first().innerText()
+    assert.ok(firstRoleStory.includes('Student Yun')&&firstRoleStory.includes('Plantman'),
+      'Story card must visually connect Student Yun with Plantman')
     assert.ok(await page.locator('.story-list').evaluate(el => Boolean(el.compareDocumentPosition(document.querySelector('.quest-gate')) & Node.DOCUMENT_POSITION_FOLLOWING)),
       'After completion, stories must precede the replay panel')
     assert.equal(await page.getByRole('button',{name:/PLAY AGAIN/i}).count(),1,'Completed game should appear as replay')
