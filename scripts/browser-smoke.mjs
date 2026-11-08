@@ -56,30 +56,46 @@ try {
     assert.ok(await page.locator('.quest-gate').evaluate(el => Boolean(el.compareDocumentPosition(document.querySelector('.stories-hidden')) & Node.DOCUMENT_POSITION_FOLLOWING)),
       'Before completion, mini-game should appear above the locked stories')
 
-    // A full AI Lab run reveals appearances only, then returns to station stories.
+    // Complete AI Lab and walk through the strongly guided character -> story flow.
     await page.getByRole('button',{name:/PLAY MINI GAME/i}).click()
     await page.getByRole('button',{name:/START 12-SECOND RUN/i}).click()
     const tap=page.getByRole('button',{name:/Tap to generate energy/i})
     for(let i=0;i<22;i++)await tap.click()
     await page.getByRole('button',{name:/SUCCESS! SEE UNLOCKED CHARACTERS/i}).click()
-    await page.getByRole('dialog',{name:/CHARACTERS UNLOCKED/i}).waitFor()
+    await page.getByRole('dialog',{name:/CHARACTERS & STORIES UNLOCKED/i}).waitFor()
     assert.equal(await page.locator('.unlock-preview-character').count(),3,'AI Lab should preview 3 characters')
-    assert.equal(await page.locator('.codex-modal').count(),0,'Victory must not open Codex detail')
-    await page.getByRole('button',{name:/GOT IT — BACK TO STORIES/i}).click()
-    assert.equal(await page.locator('.unlock-preview').count(),0,'Acknowledge closes preview')
-    await page.locator('.zone-heading h1').filter({hasText:/AI LAB/i}).waitFor()
-    assert.equal(await page.locator('.story-card:not(.story-locked)').count(),3,'Return to unlocked station stories')
+    assert.equal(await page.locator('.unlock-preview-story-link').count(),3,'Each role must explicitly link to its story')
+    assert.match(await page.locator('.unlock-preview-story-link').first().innerText(),/Plantman/i)
+    await page.getByRole('button',{name:/READ 3 CHARACTER STORIES/i}).click()
+    assert.equal(await page.locator('.unlock-preview').count(),0,'Guided reading closes unlock preview')
+    for (const [index,roleName] of ['Student Yun','Researcher Yun','Engineer Yun'].entries()) {
+      const modal=page.locator('.role-dialogue')
+      await modal.waitFor({state:'visible'})
+      assert.match(await modal.locator('.dialogue-character-name').innerText(),new RegExp(roleName,'i'),'Story must show its character')
+      assert.equal(await modal.locator('.guide-progress').getAttribute('aria-valuenow'),String(index+1),'Guide advances with characters')
+      await modal.getByRole('button',{name:/^NEXT$/i}).click()
+      await modal.getByRole('button',{name:index===2?/FINISH STORY TOUR/i:/NEXT CHARACTER/i}).click()
+    }
+    assert.equal(await page.locator('.role-dialogue').count(),0,'Guided story modal closes after final story')
+    assert.equal(await page.locator('.story-card:not(.story-locked)').count(),3,'All three unlocked stories remain accessible')
+    assert.equal(await page.locator('.story-status.is-done').count(),3,'Reading three stories records completion')
+    assert.equal(await page.locator('.role-story-card .story-character-portrait').count(),3,'Every Station story card has a matching character')
+    assert.match(await page.locator('.role-story-card').first().innerText(),/Student Yun[\\s\\S]*Plantman/i,
+      'Story card must visually connect character with linked project')
     assert.ok(await page.locator('.story-list').evaluate(el => Boolean(el.compareDocumentPosition(document.querySelector('.quest-gate')) & Node.DOCUMENT_POSITION_FOLLOWING)),
       'After completion, stories must precede the replay panel')
-    assert.equal(await page.getByRole('button',{name:/PLAY AGAIN/i}).count(),1,'Completed game should be presented as replay, not the primary entry')
+    assert.equal(await page.getByRole('button',{name:/PLAY AGAIN/i}).count(),1,'Completed game should appear as replay')
     await page.waitForFunction(() => {
       const heading=document.querySelector('.zone-story-head')
       const top=heading?.getBoundingClientRect().top ?? 10000
       return top>=-10 && top<=190
     },null,{timeout:5000})
 
-    // Locked Gamer and Learner characters should navigate to their respective stations.
+    // Codex now also names the linked story on each collected character card.
     await page.getByRole('button',{name:/Open nine-character codex/i}).click()
+    assert.equal(await page.locator('.codex-card-story').count(),3,'Codex must list stories for collected Builder roles')
+    assert.match(await page.locator('.codex-card-story').first().innerText(),/Plantman/i)
+    // Locked Gamer and Learner characters should navigate to their respective stations.
     await page.getByRole('button',{name:/^GAMER/i}).click()
     await page.locator('.codex-locked').first().click()
     await page.getByRole('button',{name:/GO TO GAME ROOM/i}).click()
