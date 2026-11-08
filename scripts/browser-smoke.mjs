@@ -121,7 +121,7 @@ try {
       await page.locator('.zone-heading h1').filter({hasText:station}).waitFor()
       assert.equal(await page.locator('.codex-zone-link').count(),0,'No duplicate Gallery link in '+station)
       if(station==='QUEST FIELD'){
-        const roleLabels=await page.locator('.role-story-link').allInnerTexts()
+        const roleLabels=await page.locator('.story-role-link').allInnerTexts()
         assert.deepEqual(roleLabels.map(x=>x.split('→')[0].trim()),['Diver Yun','Boxer Yun','Explorer Yun'],
           'Quest Field role/story order must agree with Codex and picked items')
       }
