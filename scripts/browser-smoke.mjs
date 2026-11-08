@@ -64,6 +64,7 @@ try {
     await page.getByRole('button',{name:/SUCCESS! SEE UNLOCKED CHARACTERS/i}).click()
     await page.getByRole('dialog',{name:/CHARACTERS & STORIES UNLOCKED/i}).waitFor()
     assert.equal(await page.locator('.unlock-preview-character').count(),3,'AI Lab should preview 3 characters')
+    assert.equal(await page.getByRole('button',{name:/NOT NOW — BACK TO STATION/i}).count(),1,'Guided tour is optional and skippable')
     assert.equal(await page.locator('.unlock-preview-story-link').count(),3,'Each role must explicitly link to its story')
     assert.match(await page.locator('.unlock-preview-story-link').first().innerText(),/Plantman/i)
     await page.getByRole('button',{name:/READ 3 CHARACTER STORIES/i}).click()
@@ -119,6 +120,11 @@ try {
       await page.locator('.preview-row').filter({hasText:station}).click()
       await page.locator('.zone-heading h1').filter({hasText:station}).waitFor()
       assert.equal(await page.locator('.codex-zone-link').count(),0,'No duplicate Gallery link in '+station)
+      if(station==='QUEST FIELD'){
+        const roleLabels=await page.locator('.role-story-link').allInnerTexts()
+        assert.deepEqual(roleLabels.map(x=>x.split('→')[0].trim()),['Diver Yun','Boxer Yun','Explorer Yun'],
+          'Quest Field role/story order must agree with Codex and picked items')
+      }
       assert.ok(await page.locator('.story-list').evaluate(el => Boolean(el.compareDocumentPosition(document.querySelector('.quest-gate')) & Node.DOCUMENT_POSITION_FOLLOWING)),
         'Stories should appear before replay in previously cleared '+station)
       await page.locator('.back-link').click()
