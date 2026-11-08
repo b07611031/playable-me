@@ -95,9 +95,9 @@ function App(){
   })
  }
  const unlockedCount=skipGames[zone.id]?3:zone.id==='game'?((gameStarted||gameTier>0)?3:0):zone.id==='field'?((fieldStarted||outfits.length>0)?3:0):labTier
- // Once the main challenge has been cleared, unlocked stories become the Station's first action.
- // Persisted game tiers/outfits keep the story-first layout after a reload.
- const gameCleared=zone.id==='game'?(spaceWon||gameTier===3):zone.id==='field'?(sharkWon||outfits.length===3):labTier===3
+ // After *any* gameplay unlock, prioritize newly available stories, even if a timed
+ // attempt ends below the top score. Saved tiers/outfits preserve the order on reload.
+ const hasGameplayUnlock=zone.id==='game'?(spaceWon||gameTier>0):zone.id==='field'?(sharkWon||outfits.length>0):labTier>0
  const storyAccess=unlockedCount>0
  const launchGame=()=>{if(zone.id==='game')setSpaceOpen(true);else if(zone.id==='field')setSharkOpen(true);else setLabOpen(true)}
  const questPanel=<>
@@ -114,9 +114,9 @@ function App(){
         {zone.id==='field'&&sharkWon&&<span className="mini-win">✓ {lang==='zh'?'成功躲避鯊魚':'OCEAN MAZE CLEARED'}</span>}
         {zone.id==='lab'&&<span className="mini-win">⚡ {lang==='zh'?'已解鎖':'UNLOCKED'} {unlockedCount}/3</span>}
       </div>
-      <button className="quest-play-button" onClick={launchGame}><Gamepad2 size={18}/>{gameCleared?(lang==='zh'?'再次挑戰':'PLAY AGAIN'):(lang==='zh'?'開始遊戲':'PLAY MINI GAME')}</button>
+      <button className="quest-play-button" onClick={launchGame}><Gamepad2 size={18}/>{hasGameplayUnlock?(lang==='zh'?'再次挑戰':'PLAY AGAIN'):(lang==='zh'?'開始遊戲':'PLAY MINI GAME')}</button>
     </div>
-    {!gameCleared&&<div className="gate-skip-row"><span>{lang==='zh'?'沒有時間玩？':'Short on time?'}</span><button onClick={()=>setSkipGames(p=>({...p,[zone.id]:true}))}>{lang==='zh'?'直接閱讀全部故事':'READ ALL STORIES INSTEAD'} <ArrowRight size={14}/></button></div>}
+    {unlockedCount<3&&<div className="gate-skip-row"><span>{lang==='zh'?'沒有時間玩？':'Short on time?'}</span><button onClick={()=>setSkipGames(p=>({...p,[zone.id]:true}))}>{lang==='zh'?'直接閱讀全部故事':'READ ALL STORIES INSTEAD'} <ArrowRight size={14}/></button></div>}
  </>
  return <div className="app-shell">
   <div className="stars" aria-hidden="true"/>
@@ -129,13 +129,13 @@ function App(){
     <button className="back-link" onClick={goMap}><ArrowLeft size={16}/>{t.back}</button>
     <div className="zone-heading"><p className="eyebrow">02 / {t.chapter} · {zone.id.toUpperCase()}</p><h1 style={{color:zone.accent}}>{tr(zone.name,lang)}</h1><p>{tr(zone.trait,lang)}</p></div>
     <PixelScene zone={zone.id} stories={zone.stories.slice(0,unlockedCount)} completed={opened} lang={lang} onInteract={openStory}/>
-    {!gameCleared&&questPanel}
+    {!hasGameplayUnlock&&questPanel}
     {storyAccess?<><div className="zone-story-head" ref={storyHeadingRef} tabIndex={-1}><div><span className="eyebrow">{t.read}</span><h2>{lang==='en'?'DISCOVER THE STORY':'探索這段故事'}</h2></div><span className="story-count">{zone.stories.filter(s=>opened.includes(s.id)).length}/3</span></div>
       <p className="zone-instruction">{lang==='zh'?'點擊場景物件或下方故事卡。完整閱讀才算完成。':'Tap the scene objects or cards below. Finish a dialogue to record completion.'}</p>
       <div className="story-list">{zone.stories.map((s,i)=>i<unlockedCount?<button className="story-card" key={s.id} onClick={()=>openStory(s)}><span className="object-icon">{s.emoji}</span><span className="story-details"><b><span className="story-idx">0{i+1} / </span>{tr(s.title,lang)}</b><small>{tr(s.teaser,lang)}</small></span><span className={'story-status '+(opened.includes(s.id)?'is-done':'')}>{opened.includes(s.id)?<Check size={17}/>:<ChevronRight size={17}/>}</span></button>:<div key={s.id} className="story-card story-locked" aria-label={lang==='zh'?'尚未解鎖故事':'Story not yet unlocked'}><span className="object-icon">🔒</span><span className="story-details"><b>0{i+1} / {lang==='zh'?'尚未解鎖':'LOCKED STORY'}</b><small>{lang==='zh'?'繼續挑戰 AI 連點，或直接閱讀':'Tap more in the AI Lab or choose to read directly'}</small></span></div>)}</div>
     </>:<div className="stories-hidden"><span>🔐</span><b>{lang==='zh'?'故事尚未解鎖':'STORIES ARE LOCKED'}</b><p>{lang==='zh'?'按下「開始遊戲」，或選擇直接閱讀故事。':'Start the mini-game to reveal the story cards, or use the reading shortcut.'}</p></div>}
     {completed&&<div className="achievement-unlocked"><Trophy size={24}/><div><b>{t.completed}</b><span>{tr(zone.trait,lang)}</span></div></div>}
-    {gameCleared&&questPanel}
+    {hasGameplayUnlock&&questPanel}
     <button className="wide-back" onClick={goMap}>{t.back} <ArrowRight size={18}/></button>
    </section>}
       {screen==='ending'&&<section className="end-screen"><div className="end-stars">✦ &nbsp; ✧ &nbsp; ✦</div><Trophy size={46} className="end-trophy"/><p className="eyebrow">{t.finish}</p><h1>{t.summary}</h1><p className="end-line">{t.ending}</p><div className="achievement-list">{zones.map(z=><span key={z.id}><Check size={15}/> {tr(z.trait,lang)}</span>)}</div><p className="ending-tag">Started with Games. Built with AI. Always Learning.</p><button className="primary-cta" onClick={()=>setLinksOpen(true)}>{t.links}<ArrowRight size={19}/></button><button className="secondary-link" onClick={()=>openCodex()}>{lang==='zh'?'查看九角色圖鑑':'VIEW ALL NINE CHARACTERS'}</button><button className="secondary-link" onClick={()=>setScreen('map')}>{t.revisit}</button><button className="restart-button" onClick={reset}><RotateCcw size={14}/>{t.again}</button></section>}
