@@ -155,3 +155,9 @@
   .dialogue-character-portrait{width:82px;min-width:82px;height:96px}
   .dialogue-character-portrait .sprite-person{transform:translate(-50%,-50%) scale(.72)}
 }
+
+
+/* Partial attempts unlock identities too; retry is intentionally secondary to reading. */
+.space-retry-button{width:100%;min-height:44px;display:flex;align-items:center;justify-content:center;gap:8px;background:#263f53;border:1px solid #7690a0;color:#e4e8eb;font-size:12px;font-weight:800;padding:11px;margin-top:8px}
+.space-retry-button:hover{background:#37576d}
+.codex-card-story{font-size:10px!important;color:#f1d7a6!important;border-top:1px solid #506b7d;padding-top:7px;line-height:1.45}
