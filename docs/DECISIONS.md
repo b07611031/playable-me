@@ -13,3 +13,4 @@ Keep entries concise; append when a decision materially changes shipping, produc
 | Fixed Ocean Maze and solvability regression test | earlier | Avoid accidental unplayable levels; randomness would require procedural validation. |
 | Gameplay first, aesthetic skill-based UI polish later | earlier | Controlled before/after comparison; Taste-Skill and Impact-Cable are **unverified candidates**, not installed facts. |
 | Public career details remain high-level and non-confidential | earlier | A site shared by QR code is public; avoid confidential customer, infrastructure, employee, client or unapproved project details. |
+| Guide readers from gameplay into corresponding character stories | 2026-11-08 | The gallery and Station stories felt disconnected. Show character + linked story together and make a guided tour the primary reward action; always allow skipping so portfolio links and reading remain accessible. |
