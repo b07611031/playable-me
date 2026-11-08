@@ -1,37 +1,33 @@
 # Playable Me — Current Project Status
 
 **Updated:** 2026-11-08
-**Project:** public, interactive personal portfolio for Yun Lin
-**Current shipping goal:** P0 (integrate release) → P1 (free GitHub Pages live URL)
-**Next goal:** QR-code verification and <10 prototype postcards, then independent gameplay/UX optimization.
+**Product:** public mobile-first interactive personal portfolio for Yun Lin
+**Priority:** P0 completed → P1 blocked by one-time GitHub Pages setting → P2 QR / <10 trial postcards.
 
-## Current source and releases
+## Releases and live status
 
 - Repository: https://github.com/b07611031/playable-me
-- Previous development handoff: PR #5 / `feat/yun-codex-nine-roles`; this includes three mini-games, nine-role gallery, Windows path fix, browser tests, and Station-return unlock preview.
-- Release candidate: `release/v0.4.0-pages`, derived from the latest PR #5 head.
-- Release status: **candidate under verification; publication not yet proven**.
-- Expected free GitHub Pages URL: `https://b07611031.github.io/playable-me/`; verify before printing.
-- Main deployment trigger: `.github/workflows/deploy.yml` after merge.
+- **P0 COMPLETE:** v0.4.0 release PR [#6](https://github.com/b07611031/playable-me/pull/6) was squash-merged into `main`; release SHA: `e51c8046c666580b75451e7f74661fdb306e9536`.
+- Includes three Stations, three mini-games, nine-role YUN CODEX, achievement preview returning to Station, bilingual text, GitHub/LinkedIn and browser smoke tests.
+- **P1 NOT YET LIVE:** [initial deploy run](https://github.com/b07611031/playable-me/actions/runs/42488073004) passed build + production path validation but failed at `actions/configure-pages@v5` because the repository's Pages site is not enabled (`Not Found`). `deploy` was skipped.
+- **Owner action:** [Issue #7 — Enable GitHub Pages source](https://github.com/b07611031/playable-me/issues/7). Go to [Settings → Pages](https://github.com/b07611031/playable-me/settings/pages), select **Source: GitHub Actions**, then re-run the latest `Deploy Playable Me to GitHub Pages` workflow on main.
+- Expected website URL (still **unverified**, do not encode QR before verifying): `https://b07611031.github.io/playable-me/`.
+- Release workflow: `.github/workflows/deploy.yml` triggers on main; CI: `.github/workflows/ci.yml`.
 
 ## Workstreams
 
-| Priority | Track | Delivery / criteria | Status |
-|---|---|---|---|
-| P0 | Stable v0.4 release | Merge verified candidate into `main` and keep core stories and gameplay intact | In progress |
-| P1 | Free website | GitHub Actions Pages deployment succeeds; HTTPS browser verification | In progress; may require owner settings |
-| P2 | QR / first postcards | Test QR on multiple phones; print <10 only after URL accepted | Not started |
-| P3 | UX / character improvements | Issues and PRs from updated main, no disruption to public release | Later |
-| P4 | UI Skills and controlled A/B | Verify Taste-Skill and Impact-Cable projects, make before/after comparison | Later |
+| Priority | Task | Status / evidence |
+|---|---|---|
+| P0 | Stable v0.4 mainline release | **Complete**, PR #6 merged |
+| P1 | Free github.io HTTPS site | **Blocked by owner Pages setting**, Issue #7 |
+| P2 | QR / physical postcard experiment | Not started; **fewer than 10 cards**, after verified public URL |
+| P3 | Game / UX enhancements | Independent PRs from `main` after baseline |
+| P4 | UI skill survey + before/after | Later; Taste-Skill / Impact-Cable exact tools unverified |
 
-## Critical risks and constraints
+## Active principles
 
-- Publishing requires setting GitHub Pages **Source → GitHub Actions** once in repository settings; coding connector may not change this.
-- The project is public. Avoid confidential engineering details or unapproved customer information.
-- A 404 or unconfigured Pages endpoint must not be described as a live deployment.
-- Resume and email links are unconfigured; LinkedIn link is approved.
-- Public QR and postcards should be made **after** verified site launch, not from the predicted URL alone.
-
-## New session entry point
-
-Read `AGENTS.md`, `docs/PRODUCT.md`, `docs/DECISIONS.md`, this document, latest open release PR / GitHub Actions run, and current Issue before writing code. Update STATUS when finishing a milestone. Keep this file short and factual; GitHub Issues track task-level details.
+- Repository and GitHub Issues/PRs are the cross-session record; read `AGENTS.md`, `docs/PRODUCT.md`, `docs/DECISIONS.md`, and `docs/DEPLOYMENT.md` before changes.
+- Public product; do not add private employer/client/internal data or unknown personal links.
+- Stories and professional links remain accessible without finishing mini-games.
+- Do not describe an unverified URL as publicly live. Production success needs Pages deploy and an unauthenticated browser check.
+- The old Draft PRs #1–#5 are development history; **start new features from main**, not those stacked branches.
