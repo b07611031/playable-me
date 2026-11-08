@@ -21,7 +21,7 @@
 | P0 | Stable v0.4 mainline release | **Complete**, PR #6 merged |
 | P1 | Free github.io HTTPS site | **Complete**, Actions run #42492540289, Issue #7 closed |
 | P2 | QR / physical postcard experiment | Not started; **fewer than 10 cards**, after verified public URL |
-| P3 | Game / UX enhancements | [Issue #8](https://github.com/b07611031/playable-me/issues/8) / [PR #9](https://github.com/b07611031/playable-me/pull/9): approved Station story-first flow (Draft pending merge); [Issue #10](https://github.com/b07611031/playable-me/issues/10): character↔story guided tour, feature branch `feat/character-story-guided-flow`, stacked after PR #9 |
+| P3 | Game / UX enhancements | [Issue #8](https://github.com/b07611031/playable-me/issues/8) / [PR #9](https://github.com/b07611031/playable-me/pull/9): approved Station story-first flow (Draft pending merge); [Issue #10](https://github.com/b07611031/playable-me/issues/10) / [PR #11](https://github.com/b07611031/playable-me/pull/11): character↔story guided tour, feature branch `feat/character-story-guided-flow`, stacked after PR #9 |
 | P4 | UI skill survey + before/after | Later; Taste-Skill / Impact-Cable exact tools unverified |
 
 ## Active principles
