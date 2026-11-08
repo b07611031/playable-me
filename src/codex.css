@@ -107,3 +107,57 @@
 .codex-confirm-cancel{flex:1;background:#283d51;border:1px solid #6a8398;color:#ebeff3;font-weight:800;font-size:12px;min-height:49px;padding:11px}
 .codex-confirm-cancel:hover{background:#36546b}
 @media(max-width:510px){.unlock-preview{padding:17px 10px;box-shadow:4px 4px #0a1524}.unlock-preview-characters{gap:6px}.unlock-preview-character{padding:6px 3px}.unlock-preview-character .codex-sprite{height:130px;min-height:130px}.unlock-preview-character b{font-size:10px}.unlock-preview-character>span:last-child{font-size:8px}.codex-confirm-actions{flex-direction:column-reverse;gap:8px}.codex-confirm-actions .codex-modal-cta{width:100%}}
+
+
+/* v0.4.2 — the character and the matching story are one visible object. */
+.role-story-card{gap:13px;align-items:center;padding:10px 14px;min-height:116px}
+.story-character-portrait{width:91px;min-width:91px;height:100px;flex-shrink:0;display:block;overflow:hidden;border:1px solid #587388;background:#2e4659}
+.story-character-portrait .codex-sprite{height:100%;min-height:0}
+.story-character-portrait .sprite-person{transform:translate(-50%,-50%) scale(.78)}
+.story-character-portrait .sprite-shadow{bottom:4px}
+.story-character-portrait .sprite-question{font-size:21px}
+.role-story-card .story-details{display:flex;flex-direction:column;gap:5px}
+.role-story-card .story-details .story-role-caption{font-size:9px;color:#d7bc85;margin:0;letter-spacing:.7px;font-weight:800}
+.story-role-link{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:13px;color:#f1d5a0;line-height:1.4}
+.story-role-link span{color:#a8d1c5;font-size:16px}
+.role-story-card .story-details b{font-size:15px;color:#e8eff3;line-height:1.45}
+.role-story-card .story-details>small:last-child{margin:0;font-size:12px}
+.role-story-card.story-locked .story-character-portrait{opacity:.8}
+
+.unlock-preview-story-link{width:100%;display:flex;justify-content:center;align-items:center;gap:5px;min-height:42px;background:#182e41;border:1px solid #657a84;padding:7px;color:#f1e4c4;font-size:11px;line-height:1.5}
+.unlock-preview-story-link strong{font-size:11px;line-height:1.4;overflow-wrap:anywhere}
+.unlock-preview-ack{display:flex;align-items:center;justify-content:center;gap:10px}
+.unlock-preview-later{display:block;margin:12px auto 0;padding:11px 15px;min-height:44px;background:transparent;color:#b9c8d5;font-size:12px;text-decoration:underline;text-underline-offset:4px;border:0}
+
+.role-dialogue .dialogue-person{gap:13px}
+.dialogue-character-portrait{width:102px;min-width:102px;height:108px;overflow:hidden;background:#283e53;border:1px solid #67829a}
+.dialogue-character-portrait .codex-sprite{height:100%;min-height:0}
+.dialogue-character-portrait .sprite-person{transform:translate(-50%,-50%) scale(.84)}
+.dialogue-character-portrait .sprite-shadow{bottom:4px}
+.dialogue-character-portrait .sprite-question{font-size:22px}
+.dialogue-character-name{color:#ebce8e;font-size:13px;display:block;margin:0 0 7px;line-height:1.5}
+.role-dialogue .dialogue-person h2{font-size:16px;line-height:1.45}
+.dialogue-role-theme{color:#a8bed1;font-size:12px;line-height:1.6;margin:12px 0 0}
+.guide-progress{display:flex;gap:7px;margin:15px 0 0}
+.guide-progress span{height:6px;flex:1;background:#425b70}
+.guide-progress span.reached{background:#d4b781}
+.dialogue-guide-skip{display:block;margin:15px 0 0 auto;padding:9px 0;background:transparent;border:0;color:#b6c7d7;text-decoration:underline;text-underline-offset:3px;font-size:11px}
+@media(max-width:510px){
+  .role-story-card{gap:9px;padding:9px 8px}
+  .story-character-portrait{width:76px;min-width:76px;height:92px}
+  .role-story-card .story-details b{font-size:13px}
+  .story-role-link{font-size:11px}
+  .unlock-preview-character .codex-sprite{height:115px;min-height:115px}
+  .unlock-preview-story-link{padding:5px 2px;min-height:46px}
+  .unlock-preview-story-link strong{font-size:9px}
+  .unlock-preview-story-link svg{min-width:12px;width:12px}
+  .role-dialogue .dialogue-person h2{font-size:14px}
+  .dialogue-character-portrait{width:82px;min-width:82px;height:96px}
+  .dialogue-character-portrait .sprite-person{transform:translate(-50%,-50%) scale(.72)}
+}
+
+
+/* Partial attempts unlock identities too; retry is intentionally secondary to reading. */
+.space-retry-button{width:100%;min-height:44px;display:flex;align-items:center;justify-content:center;gap:8px;background:#263f53;border:1px solid #7690a0;color:#e4e8eb;font-size:12px;font-weight:800;padding:11px;margin-top:8px}
+.space-retry-button:hover{background:#37576d}
+.codex-card-story{font-size:10px!important;color:#f1d7a6!important;border-top:1px solid #506b7d;padding-top:7px;line-height:1.45}

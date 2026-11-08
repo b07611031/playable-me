@@ -21,7 +21,7 @@
 | P0 | Stable v0.4 mainline release | **Complete**, PR #6 merged |
 | P1 | Free github.io HTTPS site | **Complete**, Actions run #42492540289, Issue #7 closed |
 | P2 | QR / physical postcard experiment | Not started; **fewer than 10 cards**, after verified public URL |
-| P3 | Game / UX enhancements | [Issue #8](https://github.com/b07611031/playable-me/issues/8): Station story-first UX, feature branch `feat/station-story-first-ux`, awaiting PR review |
+| P3 | Game / UX enhancements | [Issue #8](https://github.com/b07611031/playable-me/issues/8) / [PR #9](https://github.com/b07611031/playable-me/pull/9): approved Station story-first flow (Draft pending merge); [Issue #10](https://github.com/b07611031/playable-me/issues/10) / [PR #11](https://github.com/b07611031/playable-me/pull/11): character↔story guided tour, feature branch `feat/character-story-guided-flow`, stacked after PR #9 |
 | P4 | UI skill survey + before/after | Later; Taste-Skill / Impact-Cable exact tools unverified |
 
 ## Active principles
@@ -31,3 +31,9 @@
 - Stories and professional links remain accessible without finishing mini-games.
 - Public deployment was confirmed by the user and GitHub Pages success; future releases still require successful deploy checks and real-device acceptance.
 - The old Draft PRs #1–#5 are development history; **start new features from main**, not those stacked branches.
+
+## Current UX acceptance / dependent changes
+
+- Station UX refinement [PR #9](https://github.com/b07611031/playable-me/pull/9) remains the reviewed but unmerged base branch.
+- New character-story guided journey: [Issue #10](https://github.com/b07611031/playable-me/issues/10), [spec](character-story-guided-ux-v042.md). Do not publish it ahead of PR #9.
+- After any earned character, guide to a named original story, with a clear opt-out. Story-reading and gameplay unlocking remain independent.

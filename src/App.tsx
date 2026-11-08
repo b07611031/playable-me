@@ -5,7 +5,8 @@ import SharkMaze from './SharkMaze'
 import LabClicker from './LabClicker'
 import Codex from './CharacterCodex'
 import CharacterUnlockPreview from './CharacterUnlockPreview'
-import {countUnlocked, type Group, type Progress} from './codex'
+import CharacterSprite from './CharacterSprite'
+import {countUnlocked, isUnlocked, roles, type Group, type Progress} from './codex'
 
 type Lang = 'en' | 'zh'
 type ZoneId = 'lab' | 'field' | 'game'
@@ -48,6 +49,7 @@ function App(){
  const [zoneId,setZoneId]=useState<ZoneId>('lab')
  const [opened,setOpened]=useState<string[]>(()=>readSaved('pm-opened'))
  const [activeStory,setActiveStory]=useState<Story|null>(null)
+ const [guidedStories,setGuidedStories]=useState<{storyIds:string[];index:number}|null>(null)
  const [line,setLine]=useState(0)
  const [linksOpen,setLinksOpen]=useState(false)
  const [spaceOpen,setSpaceOpen]=useState(false)
@@ -73,32 +75,64 @@ function App(){
  useEffect(()=>{try{localStorage.setItem('pm-lab-tier',String(labTier))}catch{}},[labTier])
  useEffect(()=>{try{localStorage.setItem('pm-game-tier',String(gameTier))}catch{}},[gameTier])
  useEffect(()=>{try{localStorage.setItem('pm-lang',lang)}catch{};document.documentElement.lang=lang==='zh'?'zh-TW':'en'},[lang])
- useEffect(()=>{const onKey=(e:KeyboardEvent)=>{if(e.key==='Escape' && !spaceOpen){setActiveStory(null);setLinksOpen(false)} };window.addEventListener('keydown',onKey);return()=>window.removeEventListener('keydown',onKey)},[spaceOpen])
- const openStory=(s:Story)=>{setActiveStory(s);setLine(0)}
- const finishStory=()=>{if(activeStory){const id=activeStory.id;setOpened(prev=>prev.includes(id)?prev:[...prev,id])}setActiveStory(null)}
+ useEffect(()=>{const onKey=(e:KeyboardEvent)=>{if(e.key==='Escape' && !spaceOpen){setActiveStory(null);setGuidedStories(null);setLinksOpen(false)} };window.addEventListener('keydown',onKey);return()=>window.removeEventListener('keydown',onKey)},[spaceOpen])
+ const focusStationStories=()=>window.requestAnimationFrame(()=>{
+   const heading=storyHeadingRef.current
+   if(!heading)return
+   const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches
+   heading.scrollIntoView({behavior:reducedMotion?'auto':'smooth',block:'start'})
+   heading.focus({preventScroll:true})
+ })
+ const dismissStory=()=>{setActiveStory(null);setGuidedStories(null)}
+ const openStory=(s:Story)=>{setGuidedStories(null);setActiveStory(s);setLine(0)}
+ const finishStory=()=>{
+   if(activeStory){const id=activeStory.id;setOpened(prev=>prev.includes(id)?prev:[...prev,id])}
+   if(guidedStories&&guidedStories.index+1<guidedStories.storyIds.length){
+     const nextIndex=guidedStories.index+1
+     const nextId=guidedStories.storyIds[nextIndex]
+     const nextStory=zones.flatMap(z=>z.stories).find(s=>s.id===nextId)
+     if(nextStory){
+       setGuidedStories({...guidedStories,index:nextIndex})
+       setActiveStory(nextStory)
+       setLine(0)
+       return
+     }
+   }
+   setActiveStory(null);setGuidedStories(null)
+   if(guidedStories)focusStationStories()
+ }
  const goMap=()=>{setActiveStory(null);setScreen(badges===3?'ending':'map')}
- const reset=()=>{setOpened([]);setLabTier(0);setGameTier(0);setOutfits([]);setGameStarted(false);setFieldStarted(false);setSpaceWon(false);setSharkWon(false);setSkipGames({lab:false,field:false,game:false});setScreen('home');setActiveStory(null)}
+ const reset=()=>{setGuidedStories(null);setUnlockPreview(null);setOpened([]);setLabTier(0);setGameTier(0);setOutfits([]);setGameStarted(false);setFieldStarted(false);setSpaceWon(false);setSharkWon(false);setSkipGames({lab:false,field:false,game:false});setScreen('home');setActiveStory(null)}
  const completed=zoneComplete(zone)
  const progress:Progress={labTier,gameTier,outfits}
  const codexCount=countUnlocked(progress)
  const openCodex=(group:Group|'all'='all')=>{setUnlockPreview(null);setCodexGroup(group);setScreen('codex')}
  const goToStation=(group:Group)=>{setZoneId(group==='builder'?'lab':group==='learner'?'field':'game');setScreen('zone');setActiveStory(null)}
  const showUnlockPreview=(group:Group)=>{setSpaceOpen(false);setSharkOpen(false);setLabOpen(false);goToStation(group);setUnlockPreview(group)}
- const acknowledgeUnlock=()=>{
-  setUnlockPreview(null)
-  window.requestAnimationFrame(()=>{
-   const heading=storyHeadingRef.current
-   if(!heading)return
-   const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches
-   heading.scrollIntoView({behavior:reducedMotion?'auto':'smooth',block:'start'})
-   heading.focus({preventScroll:true})
-  })
+ const acknowledgeUnlock=()=>{setUnlockPreview(null);focusStationStories()}
+ const startGuidedStories=(group:Group)=>{
+   const all=roles.filter(role=>role.group===group&&isUnlocked(role,progress)).map(role=>role.storyId)
+   const unread=all.filter(id=>!opened.includes(id))
+   const storyIds=unread.length>0?unread:all
+   const initial=zones.flatMap(z=>z.stories).find(s=>s.id===storyIds[0])
+   setUnlockPreview(null)
+   if(!initial){focusStationStories();return}
+   setGuidedStories({storyIds,index:0});setActiveStory(initial);setLine(0)
  }
  const unlockedCount=skipGames[zone.id]?3:zone.id==='game'?((gameStarted||gameTier>0)?3:0):zone.id==='field'?((fieldStarted||outfits.length>0)?3:0):labTier
  // After *any* gameplay unlock, prioritize newly available stories, even if a timed
  // attempt ends below the top score. Saved tiers/outfits preserve the order on reload.
  const hasGameplayUnlock=zone.id==='game'?(spaceWon||gameTier>0):zone.id==='field'?(sharkWon||outfits.length>0):labTier>0
- const storyAccess=unlockedCount>0
+ const zoneGroup:Group=zone.id==='lab'?'builder':zone.id==='field'?'learner':'gamer'
+ const zoneStories=roles.filter(role=>role.group===zoneGroup).map(role=>{
+   const story=zone.stories.find(s=>s.id===role.storyId)
+   if(!story)throw new Error('Role story mapping missing: '+role.storyId)
+   return {role,story}
+ })
+ const activeRole=activeStory?roles.find(role=>role.storyId===activeStory.id):undefined
+ const activeRoleUnlocked=activeRole?isUnlocked(activeRole,progress):false
+ const storyTitles=Object.fromEntries(zones.flatMap(z=>z.stories).map(s=>[s.id,tr(s.title,lang)]))
+  const storyAccess=unlockedCount>0
  const launchGame=()=>{if(zone.id==='game')setSpaceOpen(true);else if(zone.id==='field')setSharkOpen(true);else setLabOpen(true)}
  const questPanel=<>
     <div className="quest-gate">
@@ -124,15 +158,33 @@ function App(){
   <main className="main-content">
    {screen==='home'&&<section className="home-screen"><div className="tiny-kicker"><span className="pulse-dot"/> AN INTERACTIVE PORTFOLIO · 2026</div><div className="home-art"><div className="pixel-sun"/><span className="float-star st1">✧</span><span className="float-star st2">✦</span><span className="float-star st3">✧</span><div className="home-platform"/><PixelAvatar large/><span className="home-shadow"/></div><div className="home-copy"><p className="level-tag">PLAYER 001 · ENGINEER / GAMER / EXPLORER</p><h1>THE STORY<br/>OF <em>YUN</em><span className="cursor">_</span></h1><p className="tagline">Started with Games. <span>Built with AI.</span><br/>Always Learning.</p><p className="intro">{t.intro}</p><button className="primary-cta" onClick={()=>setScreen('map')}><Gamepad2 size={19}/>{t.start}<ChevronRight size={20}/></button><button className="secondary-link" onClick={()=>setLinksOpen(true)}>{t.links} <ArrowRight size={15}/></button></div></section>}
    {screen==='map'&&<section className="map-screen"><div className="section-top"><p className="eyebrow">01 / WORLD SELECT</p><h1>{t.map}<span className="title-spark"> ✦</span></h1><p className="section-subtitle">{t.hint}</p></div><div className="world-board"><div className="map-pattern"/><div className="map-route route-one"/><div className="map-route route-two"/><div className="map-player"><PixelAvatar/></div>{zones.map((z,i)=><button key={z.id} className={'world-location node-'+z.id} onClick={()=>{setZoneId(z.id);setScreen('zone')}} style={{'--accent':z.accent} as CSSProperties}><span className={'map-building build-'+z.id}>{z.id==='lab'?'▣':z.id==='field'?'▲':'▤'}</span><span className="map-label">{tr(z.name,lang)}</span><span className="map-check">{zoneComplete(z)?'✓':('0'+(i+1))}</span></button>)}<div className="pixel-trees" aria-hidden="true">♠ ♠<br/>♠ ♠ ♠</div><div className="map-lake" aria-hidden="true">≈ ≈ ≈</div></div><div className="map-footer"><span>✦ {badges}/3 {t.progress}</span><span>CHOOSE A LOCATION ↗</span></div><div className="zone-preview-list">{zones.map(z=><button className="preview-row" key={z.id} onClick={()=>{setZoneId(z.id);setScreen('zone')}}><span className="preview-symbol" style={{color:z.accent}}>{z.icon}</span><span><b>{tr(z.name,lang)}</b><small>{tr(z.trait,lang)}</small></span>{zoneComplete(z)?<Check size={17} className="done-icon"/>:<ChevronRight size={17}/>}</button>)}</div></section>}
-   {screen==='codex'&&<Codex lang={lang} progress={progress} onBack={()=>setScreen('map')} preferredGroup={codexGroup} onGoToStation={goToStation} onStory={id=>{const s=zones.flatMap(z=>z.stories).find(s=>s.id===id);if(s)openStory(s)}}/>}
+   {screen==='codex'&&<Codex lang={lang} progress={progress} onBack={()=>setScreen('map')} preferredGroup={codexGroup} storyTitles={storyTitles} onGoToStation={goToStation} onStory={id=>{const s=zones.flatMap(z=>z.stories).find(s=>s.id===id);if(s)openStory(s)}}/>}
    {screen==='zone'&&<section className="zone-screen">
     <button className="back-link" onClick={goMap}><ArrowLeft size={16}/>{t.back}</button>
     <div className="zone-heading"><p className="eyebrow">02 / {t.chapter} · {zone.id.toUpperCase()}</p><h1 style={{color:zone.accent}}>{tr(zone.name,lang)}</h1><p>{tr(zone.trait,lang)}</p></div>
-    <PixelScene zone={zone.id} stories={zone.stories.slice(0,unlockedCount)} completed={opened} lang={lang} onInteract={openStory}/>
+    <PixelScene zone={zone.id} stories={zoneStories.map(entry=>entry.story).slice(0,unlockedCount)} completed={opened} lang={lang} onInteract={openStory}/>
     {!hasGameplayUnlock&&questPanel}
     {storyAccess?<><div className="zone-story-head" ref={storyHeadingRef} tabIndex={-1}><div><span className="eyebrow">{t.read}</span><h2>{lang==='en'?'DISCOVER THE STORY':'探索這段故事'}</h2></div><span className="story-count">{zone.stories.filter(s=>opened.includes(s.id)).length}/3</span></div>
       <p className="zone-instruction">{lang==='zh'?'點擊場景物件或下方故事卡。完整閱讀才算完成。':'Tap the scene objects or cards below. Finish a dialogue to record completion.'}</p>
-      <div className="story-list">{zone.stories.map((s,i)=>i<unlockedCount?<button className="story-card" key={s.id} onClick={()=>openStory(s)}><span className="object-icon">{s.emoji}</span><span className="story-details"><b><span className="story-idx">0{i+1} / </span>{tr(s.title,lang)}</b><small>{tr(s.teaser,lang)}</small></span><span className={'story-status '+(opened.includes(s.id)?'is-done':'')}>{opened.includes(s.id)?<Check size={17}/>:<ChevronRight size={17}/>}</span></button>:<div key={s.id} className="story-card story-locked" aria-label={lang==='zh'?'尚未解鎖故事':'Story not yet unlocked'}><span className="object-icon">🔒</span><span className="story-details"><b>0{i+1} / {lang==='zh'?'尚未解鎖':'LOCKED STORY'}</b><small>{lang==='zh'?'繼續挑戰 AI 連點，或直接閱讀':'Tap more in the AI Lab or choose to read directly'}</small></span></div>)}</div>
+      <div className="story-list">{zoneStories.map(({role,story},i)=>i<unlockedCount?
+        <button className="story-card role-story-card" key={story.id} onClick={()=>openStory(story)}
+          aria-label={`${isUnlocked(role,progress)?role.name[lang]:(lang==='zh'?'未解鎖角色':'Locked character')} — ${tr(story.title,lang)}`}>
+          <span className="story-character-portrait"><CharacterSprite role={role} locked={!isUnlocked(role,progress)}/></span>
+          <span className="story-details">
+            <small className="story-role-caption">{lang==='zh'?'角色故事':'CHARACTER STORY'} 0{i+1} / 03</small>
+            <strong className="story-role-link">
+              {isUnlocked(role,progress)?role.name[lang]:(lang==='zh'?'??? · 角色待解鎖':'??? · ROLE LOCKED')}
+              <span aria-hidden="true">→</span>
+            </strong>
+            <b>{tr(story.title,lang)}</b>
+            <small>{tr(story.teaser,lang)}</small>
+          </span>
+          <span className={'story-status '+(opened.includes(story.id)?'is-done':'')}>{opened.includes(story.id)?<Check size={17}/>:<ChevronRight size={17}/>}</span>
+        </button>:
+        <div key={story.id} className="story-card story-locked role-story-card" aria-label={lang==='zh'?'尚未解鎖故事':'Story not yet unlocked'}>
+          <span className="story-character-portrait"><CharacterSprite role={role} locked/></span>
+          <span className="story-details"><b>0{i+1} / {lang==='zh'?'尚未解鎖':'LOCKED STORY'}</b><small>{lang==='zh'?'繼續挑戰，或選擇直接閱讀':'Keep playing, or choose to read directly'}</small></span>
+        </div>)}</div>
     </>:<div className="stories-hidden"><span>🔐</span><b>{lang==='zh'?'故事尚未解鎖':'STORIES ARE LOCKED'}</b><p>{lang==='zh'?'按下「開始遊戲」，或選擇直接閱讀故事。':'Start the mini-game to reveal the story cards, or use the reading shortcut.'}</p></div>}
     {completed&&<div className="achievement-unlocked"><Trophy size={24}/><div><b>{t.completed}</b><span>{tr(zone.trait,lang)}</span></div></div>}
     {hasGameplayUnlock&&questPanel}
@@ -141,12 +193,54 @@ function App(){
       {screen==='ending'&&<section className="end-screen"><div className="end-stars">✦ &nbsp; ✧ &nbsp; ✦</div><Trophy size={46} className="end-trophy"/><p className="eyebrow">{t.finish}</p><h1>{t.summary}</h1><p className="end-line">{t.ending}</p><div className="achievement-list">{zones.map(z=><span key={z.id}><Check size={15}/> {tr(z.trait,lang)}</span>)}</div><p className="ending-tag">Started with Games. Built with AI. Always Learning.</p><button className="primary-cta" onClick={()=>setLinksOpen(true)}>{t.links}<ArrowRight size={19}/></button><button className="secondary-link" onClick={()=>openCodex()}>{lang==='zh'?'查看九角色圖鑑':'VIEW ALL NINE CHARACTERS'}</button><button className="secondary-link" onClick={()=>setScreen('map')}>{t.revisit}</button><button className="restart-button" onClick={reset}><RotateCcw size={14}/>{t.again}</button></section>}
   </main>
   <footer className="site-footer"><span>© YUN · MADE WITH CURIOSITY</span><span><Sparkles size={12}/> PRESS START ON YOUR NEXT IDEA</span></footer>
-  {activeStory&&<div className="overlay" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setActiveStory(null)}}><section className="dialogue-modal" role="dialog" aria-modal="true" aria-labelledby="dialog-title"><div className="dialogue-bar"><span>✦ {t.dialogue} · {line+1}/{activeStory.lines[lang==='en'?0:1].length}</span><button className="close-modal" onClick={()=>setActiveStory(null)} aria-label={t.exit}><X size={18}/></button></div><div className="dialogue-person"><span className="object-icon big">{activeStory.emoji}</span><div><p>YUN’S JOURNAL</p><h2 id="dialog-title">{tr(activeStory.title,lang)}</h2></div></div><p className="dialogue-text" key={activeStory.id+line}>{activeStory.lines[lang==='en'?0:1][line]}</p><div className="dialogue-controls"><span className="dialogue-dots">{activeStory.lines[lang==='en'?0:1].map((_,i)=><i key={i} className={i===line?'active':''}/>)}</span><button className="dialogue-next" onClick={()=>{if(line<activeStory.lines[lang==='en'?0:1].length-1)setLine(l=>l+1);else finishStory()}}>{line<activeStory.lines[lang==='en'?0:1].length-1?t.continue:t.exit} <ArrowRight size={16}/></button></div></section></div>}
+  {activeStory&&<div className="overlay" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)dismissStory()}}>
+    <section className="dialogue-modal role-dialogue" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
+      <div className="dialogue-bar">
+        <span>{guidedStories
+          ?`✦ ${lang==='zh'?'角色故事導覽':'MEET YUN'} ${guidedStories.index+1}/${guidedStories.storyIds.length}`
+          :`✦ ${t.dialogue} · ${line+1}/${activeStory.lines[lang==='en'?0:1].length}`}</span>
+        <button className="close-modal" onClick={dismissStory} aria-label={t.exit}><X size={18}/></button>
+      </div>
+      {guidedStories&&<div className="guide-progress" role="progressbar" aria-label={lang==='zh'?'故事導覽進度':'Guided story progress'} aria-valuemin={0} aria-valuemax={guidedStories.storyIds.length} aria-valuenow={guidedStories.index+1}>
+        {guidedStories.storyIds.map((id,i)=><span key={id} className={i<=guidedStories.index?'reached':''}/>)}
+      </div>}
+      <div className="dialogue-person">
+        {activeRole?<span className="dialogue-character-portrait"><CharacterSprite role={activeRole} locked={!activeRoleUnlocked}/></span>:<span className="object-icon big">{activeStory.emoji}</span>}
+        <div>
+          <p>{activeRole? (lang==='zh'?'YUN 的角色故事':'YUN’S CHARACTER STORY'):'YUN’S JOURNAL'}</p>
+          {activeRole&&<strong className="dialogue-character-name">{activeRoleUnlocked?activeRole.name[lang]:(lang==='zh'?'??? · 尚未解鎖':'??? · LOCKED ROLE')}</strong>}
+          <h2 id="dialog-title">{tr(activeStory.title,lang)}</h2>
+        </div>
+      </div>
+      {activeRole&&<p className="dialogue-role-theme">{activeRoleUnlocked?activeRole.classTag[lang]:(lang==='zh'?'閱讀故事不會直接解鎖角色，想收藏角色可以再挑戰遊戲。':'Reading a story does not automatically unlock a character. Play to add this role to your collection.')}</p>}
+      <p className="dialogue-text" key={activeStory.id+line}>{activeStory.lines[lang==='en'?0:1][line]}</p>
+      <div className="dialogue-controls">
+        <span className="dialogue-dots">{activeStory.lines[lang==='en'?0:1].map((_,i)=><i key={i} className={i===line?'active':''}/>)}</span>
+        <button className="dialogue-next" onClick={()=>{
+          if(line<activeStory.lines[lang==='en'?0:1].length-1)setLine(l=>l+1)
+          else finishStory()
+        }}>
+          {line<activeStory.lines[lang==='en'?0:1].length-1?t.continue
+            :guidedStories
+              ?(guidedStories.index+1<guidedStories.storyIds.length
+                ?(lang==='zh'?'下一位角色':'NEXT CHARACTER')
+                :(lang==='zh'?'完成故事導覽':'FINISH STORY TOUR'))
+              :t.exit}
+          <ArrowRight size={16}/>
+        </button>
+      </div>
+      {guidedStories&&<button className="dialogue-guide-skip" onClick={()=>{dismissStory();focusStationStories()}}>
+        {lang==='zh'?'暫時略過故事，回到 Station':'SKIP STORY TOUR — BACK TO STATION'}
+      </button>}
+    </section>
+  </div>}
   {linksOpen&&<div className="overlay" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setLinksOpen(false)}}><section className="links-modal" role="dialog" aria-modal="true" aria-label={t.linkTitle}><div className="dialogue-bar"><span>✦ {t.linkTitle}</span><button className="close-modal" onClick={()=>setLinksOpen(false)} aria-label={t.exit}><X size={18}/></button></div><h2>LET’S CONNECT.</h2><p>{t.notready}</p><a className="external-link" href={github} target="_blank" rel="noopener noreferrer"><Github size={20}/> GitHub <ExternalLink size={16}/></a><div className="disabled-link"><BookOpen size={20}/>{t.portfolio}</div><a className="external-link" href={linkedin} target="_blank" rel="noopener noreferrer"><Code2 size={20}/> LinkedIn <ExternalLink size={16}/></a><button className="modal-return" onClick={()=>setLinksOpen(false)}><X size={15}/>{t.exit}</button></section></div>}
   {spaceOpen&&<SpaceQuest lang={lang} onClose={()=>setSpaceOpen(false)} onStart={()=>setGameStarted(true)} onMilestone={tier=>setGameTier(old=>Math.max(old,tier))} onWin={()=>setSpaceWon(true)} onViewAchievements={()=>showUnlockPreview('gamer')}/>} 
   {sharkOpen&&<SharkMaze lang={lang} onClose={()=>setSharkOpen(false)} onStart={()=>setFieldStarted(true)} onWin={()=>setSharkWon(true)} onViewAchievements={()=>showUnlockPreview('learner')} owned={outfits} onCollect={item=>setOutfits(p=>p.includes(item)?p:[...p,item])}/>} 
   {labOpen&&<LabClicker lang={lang} onClose={()=>setLabOpen(false)} onViewAchievements={()=>showUnlockPreview('builder')} onStart={()=>{}} onUnlock={tier=>setLabTier(old=>Math.max(old,tier))} initialTier={labTier}/>}
-  {unlockPreview&&<CharacterUnlockPreview lang={lang} group={unlockPreview} progress={progress} onAcknowledge={acknowledgeUnlock}/>}
+  {unlockPreview&&<CharacterUnlockPreview lang={lang} group={unlockPreview} progress={progress} storyTitles={storyTitles}
+    unreadCount={roles.filter(role=>role.group===unlockPreview&&isUnlocked(role,progress)&&!opened.includes(role.storyId)).length}
+    onReadStories={()=>startGuidedStories(unlockPreview)} onAcknowledge={acknowledgeUnlock}/>}
   <nav className="mobile-nav" aria-label="Navigation"><button onClick={()=>setScreen('home')} className={screen==='home'?'active':''}><Compass size={18}/>HOME</button><button onClick={()=>setScreen('map')} className={screen==='map'?'active':''}><Map size={18}/>MAP</button><button onClick={()=>openCodex()} className={screen==='codex'?'active':''}><BookOpen size={18}/>CODEX</button><button onClick={()=>setLinksOpen(true)}><ExternalLink size={18}/>LINKS</button></nav>
  </div>
 }
