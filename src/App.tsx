@@ -193,7 +193,47 @@ function App(){
       {screen==='ending'&&<section className="end-screen"><div className="end-stars">✦ &nbsp; ✧ &nbsp; ✦</div><Trophy size={46} className="end-trophy"/><p className="eyebrow">{t.finish}</p><h1>{t.summary}</h1><p className="end-line">{t.ending}</p><div className="achievement-list">{zones.map(z=><span key={z.id}><Check size={15}/> {tr(z.trait,lang)}</span>)}</div><p className="ending-tag">Started with Games. Built with AI. Always Learning.</p><button className="primary-cta" onClick={()=>setLinksOpen(true)}>{t.links}<ArrowRight size={19}/></button><button className="secondary-link" onClick={()=>openCodex()}>{lang==='zh'?'查看九角色圖鑑':'VIEW ALL NINE CHARACTERS'}</button><button className="secondary-link" onClick={()=>setScreen('map')}>{t.revisit}</button><button className="restart-button" onClick={reset}><RotateCcw size={14}/>{t.again}</button></section>}
   </main>
   <footer className="site-footer"><span>© YUN · MADE WITH CURIOSITY</span><span><Sparkles size={12}/> PRESS START ON YOUR NEXT IDEA</span></footer>
-  {activeStory&&<div className="overlay" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setActiveStory(null)}}><section className="dialogue-modal" role="dialog" aria-modal="true" aria-labelledby="dialog-title"><div className="dialogue-bar"><span>✦ {t.dialogue} · {line+1}/{activeStory.lines[lang==='en'?0:1].length}</span><button className="close-modal" onClick={()=>setActiveStory(null)} aria-label={t.exit}><X size={18}/></button></div><div className="dialogue-person"><span className="object-icon big">{activeStory.emoji}</span><div><p>YUN’S JOURNAL</p><h2 id="dialog-title">{tr(activeStory.title,lang)}</h2></div></div><p className="dialogue-text" key={activeStory.id+line}>{activeStory.lines[lang==='en'?0:1][line]}</p><div className="dialogue-controls"><span className="dialogue-dots">{activeStory.lines[lang==='en'?0:1].map((_,i)=><i key={i} className={i===line?'active':''}/>)}</span><button className="dialogue-next" onClick={()=>{if(line<activeStory.lines[lang==='en'?0:1].length-1)setLine(l=>l+1);else finishStory()}}>{line<activeStory.lines[lang==='en'?0:1].length-1?t.continue:t.exit} <ArrowRight size={16}/></button></div></section></div>}
+  {activeStory&&<div className="overlay" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)dismissStory()}}>
+    <section className="dialogue-modal role-dialogue" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
+      <div className="dialogue-bar">
+        <span>{guidedStories
+          ?`✦ ${lang==='zh'?'角色故事導覽':'MEET YUN'} ${guidedStories.index+1}/${guidedStories.storyIds.length}`
+          :`✦ ${t.dialogue} · ${line+1}/${activeStory.lines[lang==='en'?0:1].length}`}</span>
+        <button className="close-modal" onClick={dismissStory} aria-label={t.exit}><X size={18}/></button>
+      </div>
+      {guidedStories&&<div className="guide-progress" role="progressbar" aria-label={lang==='zh'?'故事導覽進度':'Guided story progress'} aria-valuemin={0} aria-valuemax={guidedStories.storyIds.length} aria-valuenow={guidedStories.index+1}>
+        {guidedStories.storyIds.map((id,i)=><span key={id} className={i<=guidedStories.index?'reached':''}/>)}
+      </div>}
+      <div className="dialogue-person">
+        {activeRole?<span className="dialogue-character-portrait"><CharacterSprite role={activeRole} locked={!activeRoleUnlocked}/></span>:<span className="object-icon big">{activeStory.emoji}</span>}
+        <div>
+          <p>{activeRole? (lang==='zh'?'YUN 的角色故事':'YUN’S CHARACTER STORY'):'YUN’S JOURNAL'}</p>
+          {activeRole&&<strong className="dialogue-character-name">{activeRoleUnlocked?activeRole.name[lang]:(lang==='zh'?'??? · 尚未解鎖':'??? · LOCKED ROLE')}</strong>}
+          <h2 id="dialog-title">{tr(activeStory.title,lang)}</h2>
+        </div>
+      </div>
+      {activeRole&&<p className="dialogue-role-theme">{activeRoleUnlocked?activeRole.classTag[lang]:(lang==='zh'?'閱讀故事不會直接解鎖角色，想收藏角色可以再挑戰遊戲。':'Reading a story does not automatically unlock a character. Play to add this role to your collection.')}</p>}
+      <p className="dialogue-text" key={activeStory.id+line}>{activeStory.lines[lang==='en'?0:1][line]}</p>
+      <div className="dialogue-controls">
+        <span className="dialogue-dots">{activeStory.lines[lang==='en'?0:1].map((_,i)=><i key={i} className={i===line?'active':''}/>)}</span>
+        <button className="dialogue-next" onClick={()=>{
+          if(line<activeStory.lines[lang==='en'?0:1].length-1)setLine(l=>l+1)
+          else finishStory()
+        }}>
+          {line<activeStory.lines[lang==='en'?0:1].length-1?t.continue
+            :guidedStories
+              ?(guidedStories.index+1<guidedStories.storyIds.length
+                ?(lang==='zh'?'下一位角色':'NEXT CHARACTER')
+                :(lang==='zh'?'完成故事導覽':'FINISH STORY TOUR'))
+              :t.exit}
+          <ArrowRight size={16}/>
+        </button>
+      </div>
+      {guidedStories&&<button className="dialogue-guide-skip" onClick={()=>{dismissStory();focusStationStories()}}>
+        {lang==='zh'?'暫時略過故事，回到 Station':'SKIP STORY TOUR — BACK TO STATION'}
+      </button>}
+    </section>
+  </div>}
   {linksOpen&&<div className="overlay" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setLinksOpen(false)}}><section className="links-modal" role="dialog" aria-modal="true" aria-label={t.linkTitle}><div className="dialogue-bar"><span>✦ {t.linkTitle}</span><button className="close-modal" onClick={()=>setLinksOpen(false)} aria-label={t.exit}><X size={18}/></button></div><h2>LET’S CONNECT.</h2><p>{t.notready}</p><a className="external-link" href={github} target="_blank" rel="noopener noreferrer"><Github size={20}/> GitHub <ExternalLink size={16}/></a><div className="disabled-link"><BookOpen size={20}/>{t.portfolio}</div><a className="external-link" href={linkedin} target="_blank" rel="noopener noreferrer"><Code2 size={20}/> LinkedIn <ExternalLink size={16}/></a><button className="modal-return" onClick={()=>setLinksOpen(false)}><X size={15}/>{t.exit}</button></section></div>}
   {spaceOpen&&<SpaceQuest lang={lang} onClose={()=>setSpaceOpen(false)} onStart={()=>setGameStarted(true)} onMilestone={tier=>setGameTier(old=>Math.max(old,tier))} onWin={()=>setSpaceWon(true)} onViewAchievements={()=>showUnlockPreview('gamer')}/>} 
   {sharkOpen&&<SharkMaze lang={lang} onClose={()=>setSharkOpen(false)} onStart={()=>setFieldStarted(true)} onWin={()=>setSharkWon(true)} onViewAchievements={()=>showUnlockPreview('learner')} owned={outfits} onCollect={item=>setOutfits(p=>p.includes(item)?p:[...p,item])}/>} 
