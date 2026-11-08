@@ -107,6 +107,21 @@ try {
       await page.locator('.back-link').click()
     }
 
+    // Partial AI Lab runs are complete attempts too: story first, repeat challenge below.
+    await page.evaluate(() => {
+      localStorage.setItem('pm-lab-tier','1')
+      localStorage.setItem('pm-game-tier','0')
+      localStorage.setItem('pm-outfits','[]')
+    })
+    await page.reload({waitUntil:'networkidle'})
+    await page.getByRole('button', {name: /start exploring/i}).click()
+    await page.locator('.preview-row').filter({hasText:'AI LAB'}).click()
+    assert.equal(await page.locator('.story-card:not(.story-locked)').count(),1,'Partial AI Lab score should reveal one story')
+    assert.ok(await page.locator('.story-list').evaluate(el => Boolean(el.compareDocumentPosition(document.querySelector('.quest-gate')) & Node.DOCUMENT_POSITION_FOLLOWING)),
+      'A partial run must still prioritize the unlocked story over another game')
+    assert.equal(await page.getByRole('button',{name:/READ ALL STORIES INSTEAD/i}).count(),1,
+      'Partial AI Lab runs should preserve the accessibility shortcut')
+
     await page.reload({waitUntil:'networkidle'})
     assert.equal(await page.locator('h1').count(),1,'App should survive reload')
     assert.deepEqual(errors,[], 'Browser console or runtime errors')
