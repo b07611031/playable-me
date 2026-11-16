@@ -1,6 +1,6 @@
 # Playable Me — Current Project Status
 
-**Updated:** 2026-11-08
+**Updated:** 2026-11-16
 **Product:** public mobile-first interactive personal portfolio for Yun Lin
 **Priority:** P0 completed → P1 blocked by one-time GitHub Pages setting → P2 QR / <10 trial postcards.
 
@@ -22,6 +22,7 @@
 | P1 | Free github.io HTTPS site | **Blocked by owner Pages setting**, Issue #7 |
 | P2 | QR / physical postcard experiment | Not started; **fewer than 10 cards**, after verified public URL |
 | P3 | Game / UX enhancements | Independent PRs from `main` after baseline |
+| P3 | Architecture + game-design optimization backlog | **Proposed 2026-11-16, not started.** Review, prioritized items, acceptance criteria and suggested skills in [`docs/OPTIMIZATION_PLAN.md`](OPTIMIZATION_PLAN.md). Owner decisions O1–O7 are open. Wave 0 (G1–G3) are visitor-facing defects worth fixing before any QR print. |
 | P4 | UI skill survey + before/after | Later; Taste-Skill / Impact-Cable exact tools unverified |
 
 ## Active principles
