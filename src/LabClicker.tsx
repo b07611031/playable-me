@@ -13,6 +13,8 @@ export default function LabClicker({lang,onClose,onViewAchievements,onStart,onUn
  const total=useRef(0)
  const finished=useRef(false)
  const callbacks=useRef({onStart,onUnlock});callbacks.current={onStart,onUnlock}
+ // G3: Escape always closes; a backdrop click is ignored while the game is running.
+ useEffect(()=>{const key=(e:KeyboardEvent)=>{if(e.key==='Escape')onClose()};window.addEventListener('keydown',key);return()=>window.removeEventListener('keydown',key)},[onClose])
  const start=()=>{total.current=0;finished.current=false;setSucceeded(false);setClicks(0);setSeconds(12);setRunning(true);callbacks.current.onStart()}
  const tap=()=>{
    if(!running||finished.current)return
@@ -28,7 +30,7 @@ export default function LabClicker({lang,onClose,onViewAchievements,onStart,onUn
  },[running])
  useEffect(()=>{if(seconds===0&&running){finished.current=true;setRunning(false)}},[seconds,running])
  const tier=thresholds.filter(n=>clicks>=n).length
- return <div className="overlay" onMouseDown={e=>{if(e.target===e.currentTarget)onClose()}}>
+ return <div className="overlay" onMouseDown={e=>{if(e.target===e.currentTarget&&!running)onClose()}}>
   <section className="space-quest lab-quest" role="dialog" aria-modal="true" aria-labelledby="lab-title">
    <header className="space-titlebar"><span>⚡ MINI QUEST / 003</span><button onClick={onClose} aria-label={zh?'關閉':'Close'}><X size={18}/></button></header>
    <h2 id="lab-title">{zh?'AI 能量充電站':'AI POWER-UP LAB'}</h2>

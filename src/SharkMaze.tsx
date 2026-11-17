@@ -37,6 +37,8 @@ export default function SharkMaze({lang,onClose,onViewAchievements,onStart,onWin
  const steps=useRef(0),latest=useRef({state,player,shark,collected,hearts})
  const callbacks=useRef({onStart,onWin,onCollect});callbacks.current={onStart,onWin,onCollect}
  latest.current={state,player,shark,collected,hearts}
+ // G3: Escape always closes; a backdrop click is ignored while the game is running.
+ useEffect(()=>{const key=(e:KeyboardEvent)=>{if(e.key==='Escape')onClose()};window.addEventListener('keydown',key);return()=>window.removeEventListener('keydown',key)},[onClose])
  const start=()=>{steps.current=0;setPlayer(START);setShark(SHARK);setCollected([]);setOutfit(null);setHearts(3);setState('running');callbacks.current.onStart()}
  const move=useCallback((dr:number,dc:number)=>{
    const v=latest.current;if(v.state!=='running')return
@@ -60,7 +62,7 @@ export default function SharkMaze({lang,onClose,onViewAchievements,onStart,onWin
    if(d){e.preventDefault();move(d[0],d[1])}}
   window.addEventListener('keydown',key);return()=>window.removeEventListener('keydown',key)
  },[move,state])
- return <div className="overlay" onMouseDown={e=>{if(e.target===e.currentTarget)onClose()}}>
+ return <div className="overlay" onMouseDown={e=>{if(e.target===e.currentTarget&&state!=='running')onClose()}}>
   <section className="shark-quest space-quest" role="dialog" aria-modal="true" aria-labelledby="maze-title">
    <header className="space-titlebar"><span>🌊 MINI QUEST / 002</span><button onClick={onClose} aria-label={zh?'關閉':'Close'}><X size={18}/></button></header>
    <h2 id="maze-title">{zh?'YUN 的海底大冒險':'YUN’S OCEAN MAZE'}</h2>
