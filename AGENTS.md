@@ -51,7 +51,7 @@ npm run test:codex
 npm run build
 ```
 
-CI additionally runs `node scripts/browser-smoke.mjs` in Chromium for 1440x900 and 390x844; it requires Playwright as installed by workflow. For release, verify actual HTTPS Pages URL, asset loads, 3 Stations, story access, LinkedIn, unlocked-character Codex and mobile interaction. Distinguish CI success from real-user device acceptance.
+CI additionally runs `node scripts/browser-smoke.mjs` in Chromium for 1440x900, 390x844 and 360x800; it requires Playwright as installed by workflow. For release, verify actual HTTPS Pages URL, asset loads, 3 Stations, story access, LinkedIn, unlocked-character Codex and mobile interaction. Distinguish CI success from real-user device acceptance.
 
 GitHub Pages setting may require a one-time owner action: **Settings → Pages → Source: GitHub Actions**. Do not claim the site is live until the deployment run succeeds and a public URL returns the expected website.
 

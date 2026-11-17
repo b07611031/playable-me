@@ -59,3 +59,4 @@
 /* Game-clear UX: guide attention to stories after the unlock reward. */
 .zone-story-head{scroll-margin-top:28px}
 .zone-story-head:focus:not(:focus-visible){outline:none}
+@media(max-width:480px){.brand-version{display:none}}
