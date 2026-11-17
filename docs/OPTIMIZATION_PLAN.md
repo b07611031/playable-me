@@ -1,10 +1,36 @@
 # Playable Me — 優化計畫（架構與遊戲設計 review）
 
 - **日期：** 2026-11-16
-- **基準：** `main` @ `2f6eea3`（v0.4）
+- **基準：** 初稿 `main` @ `2f6eea3`（v0.4）。2026-11-17 依 T0.4 對 `main` @ `0218ef9`（#9、#11 合併後）重新核對，結果見第 0.1 節；各項目內的 `檔案:行號` 已改成 `0218ef9` 的行號
 - **狀態：** 提案。本文件只列建議，沒有修改任何程式。O2、O4 已於 2026-11-17 決定；執行順序與狀態改在 [`docs/TASKS.md`](TASKS.md) 追蹤。
-- **注意：** 本文件寫作時，PR #9、#11 尚未合併，分析沒有算進它們。兩者落地後，依 `docs/TASKS.md` 的 T0.4 重新核對每個項目與行號。
+- **注意：** 初稿寫作時 PR #9、#11 尚未合併。T0.4 已核對它們的影響，見第 0.1 節。
 - **讀者：** 專案擁有者，以及之後執行各項目的 agent（Opus、Sonnet、Sol 等）。
+
+## 0.1 T0.4 重新核對（2026-11-17，`main` @ `0218ef9`）
+
+核對方式：讀 `0218ef9` 的程式碼；在 390×844 與 360×800 用 Playwright 驅動 Chromium 實際操作 G1、G2、G3（本機 Vite 開發伺服器；沙箱連不到 Google Fonts，字型請求以空 CSS 代替，不影響版面量測以外的行為）。
+
+| ID | 狀態 | 依據（`0218ef9` 的行號） |
+|---|---|---|
+| G1 | 仍成立（已重現） | 390×844：略過 → 讀完 AI Lab 3 則（9 下）→ 重新整理 → 故事卡 0 張，同時顯示「STORIES ARE LOCKED」與「ACHIEVEMENT UNLOCKED」。旗標仍只在記憶體：`App.tsx:57-58,68`。由 G4 處理 |
+| G2 | 仍成立（已重現） | 390px：語言 336–401、連結 411–454；360px：連結 346–384；兩種寬度 `scrollWidth` 都等於視窗寬，畫面外的部分點不到。數字與初稿相同。標頭在 `App.tsx:157` |
+| G3 | 仍成立（已重現） | 390、360 兩種寬度，三個小遊戲開始後點 (5,5) 都直接關閉。`SpaceQuest.tsx:79`、`SharkMaze.tsx:63`、`LabClicker.tsx:31` |
+| G4 | 仍成立 | 預設仍是鎖住：`unlockedCount` 在 `App.tsx:122`，略過按鈕 `App.tsx:153`，「STORIES ARE LOCKED」`App.tsx:188`。#9 只調整解鎖後的排列順序（`hasGameplayUnlock`，`App.tsx:125`） |
+| G5 | 仍成立 | 未解鎖角色只顯示 `???` 與提示：`CharacterCodex.tsx:54-63`；`evidence` 只在解鎖分支 `CharacterCodex.tsx:47-53` |
+| G6 | 仍成立 | `LabClicker.tsx` 玩法未變 |
+| G7 | 部分解決 | #11 已把角色放上故事卡（`App.tsx:169-187`）、對話框（`App.tsx:207-215`）、解鎖預覽與圖鑑（故事標題）。仍有兩個未加標籤的數字：徽章（`App.tsx:72`，地圖頁尾 `App.tsx:160`）與角色數（`App.tsx:108`，標頭 `App.tsx:157`）；結尾畫面仍由徽章觸發（`App.tsx:104`） |
+| G8 | 部分解決 | #11 在玩完小遊戲後提供導覽式閱讀，讀完一則按「NEXT CHARACTER」接下一則（`App.tsx:88-103,113-121,223-227`）。略過遊戲的路徑沒有接續，仍要逐張點卡；「BACK TO MAP」跳結尾畫面仍在 `App.tsx:104` |
+| G9 | 仍成立 | 「RESUME COMING SOON」與說明文字在 `App.tsx:38-39`（文案）與 `App.tsx:237`（連結視窗） |
+| A1 | 部分解決 | 不一致第 2 點：`App.tsx` 的「珍珠」已由 #9 改掉，`SharkMaze.tsx:69` 的 aria-label 仍寫 pearls。第 5 點：Station 畫面改由 `roles` 順序排列（`App.tsx:126-131`），畫面順序已是 water、arena、camino，但 `zones` 陣列仍是 camino 在前（`App.tsx:24-26`）。第 1、3、4、6 點仍在。門檻 22 現在出現 5 處（`LabClicker.tsx:4,37,48`、`App.tsx:146`、`CharacterCodex.tsx:11`） |
+| A2 | 仍成立 | `scripts/check-codex.mjs:4,22,32-34` 仍讀 `.tsx` 原始碼比對字串；`check-maze.mjs:5` 同 |
+| A3 | 仍成立 | `App.tsx` 247 行、32KB、最長 1,538 字元；`style.css` 61 行、最長 17,713 字元；新增的 `codex.css` 163 行、最長 767 字元 |
+| A4 | 仍成立 | `App.tsx` 有 22 個 `useState`，5 個 localStorage 鍵（`App.tsx:73-77`） |
+| A5 | 仍成立 | `className="overlay"` 7 處；Escape 只在 `App.tsx:78` 處理故事、導覽與連結 |
+| A6 | 仍成立 | 畫面狀態在 `App.tsx:48` |
+| A7 | 部分解決 | 第 1 項：`package-lock.json` 已在 main（2026-11-17 由 #11 的 `9bc17d2` 意外帶入，擁有者決定保留），CI 與部署仍用 `npm install`，`AGENTS.md` 仍寫「沒有 lockfile」。第 2–7 項仍成立：`v0.4` 寫在 `App.tsx:157`；沒有 `public/`；`index.html` 沒有 `<noscript>`；`style.css:1` 仍 `@import` Google Fonts |
+| U1 | 仍成立 | 未開始 |
+
+結論：Wave 0 三項（G2、G3、G4）都仍需要做；G7、G8 的範圍縮小，只剩上表列出的部分。
 
 ## 0. 取證方式
 
@@ -85,7 +111,7 @@
 
 **現況。** 操作步驟：進 AI Lab → 點「READ ALL STORIES INSTEAD」→ 讀完 3 則故事 → 重新整理 → 再進 AI Lab。畫面同時顯示「STORIES ARE LOCKED」和「ACHIEVEMENT UNLOCKED!」，故事卡是 0 張。
 
-**原因。** `skipGames`、`gameStarted`、`fieldStarted` 只存在記憶體（`src/App.tsx:55-56,65`）。已讀清單 `opened` 則寫入 localStorage（`App.tsx:70`）。重新整理後，兩者不一致。Quest Field 與 Game Room 也有同樣問題：開始遊戲但沒拿到任何獎勵就離開，重新整理後故事會再被隱藏。
+**原因。** `skipGames`、`gameStarted`、`fieldStarted` 只存在記憶體（`src/App.tsx:57-58,68`）。已讀清單 `opened` 則寫入 localStorage（`App.tsx:73`）。重新整理後，兩者不一致。Quest Field 與 Game Room 也有同樣問題：開始遊戲但沒拿到任何獎勵就離開，重新整理後故事會再被隱藏。
 
 **解決方向。** 兩個做法擇一：
 
@@ -107,7 +133,7 @@
 
 頁面沒有水平捲動，所以畫面外的部分點不到。連結仍可從底部導覽列的 LINKS 進入。語言切換只有標頭這一個入口。
 
-**原因。** 標頭放了版本號 `v0.4`，以及兩個功能相同的圖鑑按鈕（獎盃計數、書本圖示，都呼叫 `openCodex()`，`App.tsx:91`）。
+**原因。** 標頭放了版本號 `v0.4`，以及兩個功能相同的圖鑑按鈕（獎盃計數、書本圖示，都呼叫 `openCodex()`，`App.tsx:157`）。
 
 **解決方向。** 窄螢幕只留一個圖鑑入口，拿掉版本號或移到頁尾。語言切換必須完整顯示。
 
@@ -125,7 +151,7 @@
 
 ### G4 統一解鎖規則：故事預設可讀
 
-**現況。** 三個 Station 用三種規則決定故事卡何時出現（`App.tsx:86`）：
+**現況。** 三個 Station 用三種規則決定故事卡何時出現（`App.tsx:122`）：
 
 | Station | 故事卡出現的條件 |
 |---|---|
@@ -147,7 +173,7 @@
 
 **現況。** 圖鑑的每個角色有 `evidence`、`detail`、`takeaway` 三段文字。這些是全站最具體的經歷。其中一部分沒有出現在故事裡，例如「Plantman 結合電腦視覺、手機與 LINE Bot」「臺大碩士研究」。
 
-角色未解鎖時，圖鑑只顯示 `???` 與解鎖提示（`CharacterCodex.tsx:46-63`）。「READ ALL STORIES INSTEAD」不會解鎖角色。實測：略過遊戲並讀完 AI Lab 的 3 則故事後，圖鑑仍是 0/9。
+角色未解鎖時，圖鑑只顯示 `???` 與解鎖提示（`CharacterCodex.tsx:54-63`）。「READ ALL STORIES INSTEAD」不會解鎖角色。實測：略過遊戲並讀完 AI Lab 的 3 則故事後，圖鑑仍是 0/9。
 
 所以沒時間玩的訪客看不到這 9 段經歷。其中 Tactical Yun 要撐完整場 10 顆隕石（最多被撞 2 次）才解鎖。
 
@@ -190,7 +216,7 @@
 - 徽章，共 3 個。讀完一個 Station 的 3 則故事得 1 個。顯示在地圖頁尾。
 - 角色，共 9 個。靠小遊戲成績解鎖。顯示在標頭。
 
-結尾畫面由徽章觸發（`App.tsx:78`）。略過遊戲、讀完全部故事的訪客會看到「ALL QUESTS COMPLETE」，同時標頭顯示 0/9。畫面上沒有任何文字說明這兩個數字的差別。
+結尾畫面由徽章觸發（`App.tsx:104`）。略過遊戲、讀完全部故事的訪客會看到「ALL QUESTS COMPLETE」，同時標頭顯示 0/9。畫面上沒有任何文字說明這兩個數字的差別。
 
 **解決方向。** 故事與角色本來就是一對一（`characters.json` 的 `storyId`）。把兩者放在同一張卡上：卡片顯示故事，旁邊是該故事的角色剪影。讀故事是內容，玩遊戲替角色上色。全站只剩一個清單、一個進度。
 
@@ -209,7 +235,7 @@
 
 英文版是 35 下，因為 `water` 故事的英文只有 1 行，中文有 2 行。
 
-另外，三個 Station 都讀完後，Station 內的「BACK TO MAP」會改跳結尾畫面（`App.tsx:78`），之後每次回地圖都要多點 1 下。
+另外，三個 Station 都讀完後，Station 內的「BACK TO MAP」會改跳結尾畫面（`App.tsx:104`），之後每次回地圖都要多點 1 下。
 
 **解決方向。**
 
@@ -224,7 +250,7 @@
 **現況。**
 
 - 小遊戲的回饋只有太空船被撞時閃一下。拿到道具、達到門檻、過關都沒有動態。
-- 連結視窗有一列停用的「RESUME COMING SOON」，還有一句「Resume link will be added before public launch.」（`App.tsx:37,128`）。網站公開後，招募者會看到這句話。
+- 連結視窗有一列停用的「RESUME COMING SOON」，還有一句「Resume link will be added before public launch.」（`App.tsx:38-39,237`）。網站公開後，招募者會看到這句話。
 
 **解決方向。**
 
@@ -239,23 +265,23 @@
 
 | 事實 | 出現位置 |
 |---|---|
-| AI Lab 門檻 5、12、22 | 8 處，分布在 `LabClicker.tsx`、`App.tsx`、`CharacterCodex.tsx` |
-| Station 與角色分組的對應（lab↔builder 等） | `App.tsx:84,100`、`CharacterCodex.tsx:9`、`scripts/check-codex.mjs` |
-| Station 名稱 | `App.tsx:17,22,27` 與 `CharacterCodex.tsx:9` 各一份 |
+| AI Lab 門檻 5、12、22 | 初稿 8 處；`0218ef9` 為 5 處，分布在 `LabClicker.tsx`、`App.tsx`、`CharacterCodex.tsx` |
+| Station 與角色分組的對應（lab↔builder 等） | `App.tsx:110,126`、`CharacterCodex.tsx:9`、`scripts/check-codex.mjs` |
+| Station 名稱 | `App.tsx:18,23,28` 與 `CharacterCodex.tsx:9` 各一份 |
 | 角色名稱 | `characters.json` 與 `SpaceQuest.tsx:95-97` 各一份 |
 | `Lang` 型別 | 宣告 5 次 |
 | 雙語資料的形狀 | 故事用 `[en, zh]` 陣列，角色用 `{en, zh}` 物件 |
 
-`App.tsx` 裡依 Station 分支的判斷有 21 處。6 個元件檔裡的語言判斷（`lang==='zh'?…:…` 或 `zh?…:…`）共 115 處。
+`App.tsx` 裡依 Station 分支的判斷有 21 處。6 個元件檔裡的語言判斷（`lang==='zh'?…:…` 或 `zh?…:…`）共 115 處。（以上為初稿數字。`0218ef9` 用 `grep -o "zone.id===\|zoneId==="` 數 `App.tsx` 得 17 處，用 `grep -o "lang==='zh'?\|lang==='en'?\|zh?"` 數 `src/*.tsx` 得 132 處。）
 
 已經發生的不一致：
 
 1. AI Lab 第三個里程碑顯示「SOP Annotator」（`LabClicker.tsx:5`），但解鎖的故事標題是「Making ideas usable」。`docs/minigame-rewards-v031.md` 當時就標了「verify」，至今未處理。
-2. 迷宮的道具早已改成潛水鏡、拳套、探險鞋，但兩處文案仍寫「珍珠 / pearls」（`App.tsx:108`、`SharkMaze.tsx:69`）。
-3. 連點遊戲的中文提示寫「成績保留於這次瀏覽」（`LabClicker.tsx:43`）。實際上成績存在 localStorage，而且英文版沒有這句。
+2. 迷宮的道具早已改成潛水鏡、拳套、探險鞋，但兩處文案仍寫「珍珠 / pearls」（`App.tsx:108`、`SharkMaze.tsx:69`）。**T0.4：** `App.tsx` 那處已由 #9 改掉，剩 `SharkMaze.tsx:69`。
+3. 連點遊戲的中文提示寫「成績保留於這次瀏覽」（`LabClicker.tsx:48`）。實際上成績存在 localStorage，而且英文版沒有這句。
 4. 太空船過關訊息，中文講故事卡，英文講穿越隕石帶，兩邊意思不同（`SpaceQuest.tsx:92`）。
-5. Quest Field 的故事順序是 camino、water、arena。圖鑑與 `docs/PRODUCT.md` 的順序是 water、arena、camino。
-6. `water` 故事的英文有 1 行，中文有 2 行（`App.tsx:24`）。
+5. Quest Field 的故事順序是 camino、water、arena。圖鑑與 `docs/PRODUCT.md` 的順序是 water、arena、camino。**T0.4：** #11 起 Station 畫面依 `roles` 排列（`App.tsx:126-131`），畫面順序已一致；`zones` 陣列本身仍是 camino 在前（`App.tsx:24-26`）。
+6. `water` 故事的英文有 1 行，中文有 2 行（`App.tsx:25`）。
 
 **解決方向。** 建立一份 Station 定義，其他檔案都從它讀取：
 
@@ -290,8 +316,8 @@ export const stations: Station[] = [
 
 **現況。** 現有測試不執行遊戲程式，只比對原始碼文字：
 
-- `scripts/check-codex.mjs:31` 檢查 `SpaceQuest.tsx` 是否包含字串 `avoided>=5?2:avoided>=2?1:0`。
-- `scripts/check-codex.mjs:23` 檢查 `App.tsx` 是否包含字串 `id:'plantman'` 這類片段。
+- `scripts/check-codex.mjs:33` 檢查 `SpaceQuest.tsx` 是否包含字串 `avoided>=5?2:avoided>=2?1:0`。
+- `scripts/check-codex.mjs:22` 檢查 `App.tsx` 是否包含字串 `id:'plantman'` 這類片段。
 - `scripts/check-maze.mjs` 用正規表示式從 `SharkMaze.tsx` 抓出地圖，再用自己另寫的一份鯊魚規則去模擬。起點、鯊魚位置、道具位置也是另外抄一份。
 
 所以遊戲規則改壞時，測試可能照樣通過。反過來，只是調整空白，測試就會失敗。
@@ -348,7 +374,7 @@ tests/         Vitest
 
 ### A5 共用 Modal 元件
 
-**現況。** 7 個對話框各自實作外層（`className="overlay"` 出現 7 次）。Escape 鍵只關得掉故事與連結兩個（`App.tsx:75`）；三個小遊戲、圖鑑詳情、解鎖預覽都沒有處理 Escape。原始碼裡沒有任何移動焦點或停用背景的程式，所以對話框開啟時，焦點留在背景，背景的按鈕仍可用 Tab 選到。（讀碼）
+**現況。** 7 個對話框各自實作外層（`className="overlay"` 出現 7 次）。Escape 鍵只關得掉故事與連結兩個（`App.tsx:78`）；三個小遊戲、圖鑑詳情、解鎖預覽都沒有處理 Escape。原始碼裡沒有任何移動焦點或停用背景的程式，所以對話框開啟時，焦點留在背景，背景的按鈕仍可用 Tab 選到。（讀碼）
 
 **解決方向。** 做一個以原生 `<dialog>` 與 `showModal()` 為基礎的 `Modal`。瀏覽器會處理焦點限制、Escape 與背景停用。提供 `dismissible` 屬性，G3 直接使用。
 
@@ -356,7 +382,7 @@ tests/         Vitest
 
 ### A6 網址路由與深連結
 
-**現況。** 畫面切換只存在記憶體（`App.tsx:47`）。網址永遠是同一個。按瀏覽器的上一頁會直接離開網站。明信片的 QR code 也只能連到首頁。
+**現況。** 畫面切換只存在記憶體（`App.tsx:48`）。網址永遠是同一個。按瀏覽器的上一頁會直接離開網站。明信片的 QR code 也只能連到首頁。
 
 **解決方向。** 用 hash 路由：`#/map`、`#/lab`、`#/field`、`#/game`、`#/codex`。hash 路由在 GitHub Pages 不需要額外設定，也不用新增套件（監聽 `hashchange` 即可）。同時支援 `?lang=zh`，讓中文明信片直接開中文版。
 
@@ -366,8 +392,8 @@ tests/         Vitest
 
 | # | 現況 | 解決方向 |
 |---|---|---|
-| 1 | repo 沒有 lockfile。CI 與部署每次用 `npm install` 重新解析版本，部署的套件可能與 PR 測過的不同 | 提交 `package-lock.json`，CI 與部署改用 `npm ci`，同步更新 `AGENTS.md` 的說明 |
-| 2 | `package.json` 版本是 `0.1.0`，畫面寫死 `v0.4`（`App.tsx:91`） | 版本只寫在 `package.json`，用 Vite 的 `define` 注入 |
+| 1 | **T0.4：** `package-lock.json` 已在 main（#11 的 `9bc17d2` 意外帶入，擁有者決定保留），剩改用 `npm ci` 與更新 `AGENTS.md`。原文：repo 沒有 lockfile。CI 與部署每次用 `npm install` 重新解析版本，部署的套件可能與 PR 測過的不同 | 提交 `package-lock.json`，CI 與部署改用 `npm ci`，同步更新 `AGENTS.md` 的說明 |
+| 2 | `package.json` 版本是 `0.1.0`，畫面寫死 `v0.4`（`App.tsx:157`） | 版本只寫在 `package.json`，用 Vite 的 `define` 注入 |
 | 3 | 沒有 `public/`：沒有 favicon，沒有 `og:title`、`og:image` 等分享預覽標籤 | 加入 favicon 與分享預覽圖。連結貼到 LinkedIn 或通訊軟體時才會有標題和圖片 |
 | 4 | JavaScript 載入失敗時畫面空白 | 在 `index.html` 加 `<noscript>`，內容是姓名、一句介紹、GitHub 與 LinkedIn 連結 |
 | 5 | 字型用 CSS `@import` 從 Google Fonts 載入（`style.css:1`），會延後首次顯示，也是頁面載入時唯一的第三方請求（讀碼） | 改成自行託管字型檔。見第 9 節 O5 |

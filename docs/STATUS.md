@@ -12,7 +12,7 @@
 - **P1 COMPLETE:** [GitHub Pages successful deployment](https://github.com/b07611031/playable-me/actions/runs/42492540289) has **build** and **deploy** jobs both completed successfully. Site availability is also confirmed by the owner. The initial unsuccessful workflow remains in history as a resolved setup issue.
 - **Resolved:** [Issue #7 — Enable GitHub Pages source](https://github.com/b07611031/playable-me/issues/7) is closed after the successful Pages deployment.
 - Published free-site URL: `https://b07611031.github.io/playable-me/` (owner confirmed P1 complete; deploy workflow succeeded). Test QR scanning on real devices before printing.
-- **To re-verify (T0.5):** the P1 lines above come from PR #9 (owner confirmation + run #42492540289). Issue #7 is closed. T0.5 in `docs/TASKS.md` re-checks the latest Deploy run and opens the public URL in a browser before this is restated.
+- **Verified 2026-11-17 (T0.5):** latest Deploy run [44021884636](https://github.com/b07611031/playable-me/actions/runs/44021884636) (PR #11 merge, `0218ef9`): build + deploy succeeded. Opened `https://b07611031.github.io/playable-me/` in desktop Chrome (Windows): page renders, JS/CSS return 200 and match the local `0218ef9` build hashes, no console errors, World Map shows 3 Stations, Professional links dialog shows GitHub + LinkedIn. Not yet checked on a real phone (mobile Chrome / Safari) — do that before encoding the QR.
 - Release workflow: `.github/workflows/deploy.yml` triggers on main; CI: `.github/workflows/ci.yml`.
 
 ## Workstreams
@@ -20,10 +20,10 @@
 | Priority | Task | Status / evidence |
 |---|---|---|
 | P0 | Stable v0.4 mainline release | **Complete**, PR #6 merged |
-| P1 | Free github.io HTTPS site | **Complete**, Actions run #42492540289, Issue #7 closed |
+| P1 | Free github.io HTTPS site | **Complete**, latest Deploy run #44021884636, desktop browser check 2026-11-17 (T0.5); real-phone check pending |
 | P2 | QR / physical postcard experiment | Not started; **fewer than 10 cards**, after verified public URL |
-| P3 | Game / UX enhancements | [PR #9](https://github.com/b07611031/playable-me/pull/9) (Station story-first, Issue #8) **merged 2026-11-17**. [Issue #10](https://github.com/b07611031/playable-me/issues/10) / [PR #11](https://github.com/b07611031/playable-me/pull/11): character↔story guided tour, rebased on `main`, awaiting review |
-| P3 | Architecture + game-design optimization backlog | **Ready to start.** Analysis in [`docs/OPTIMIZATION_PLAN.md`](OPTIMIZATION_PLAN.md); execution order, owner decisions and status in [`docs/TASKS.md`](TASKS.md). Next: Step 0 (land #9 → #11, re-verify plan), then Wave 0 (G2, G3, G4). O2/O4/O8 decided 2026-11-17; O1, O3, O5–O7 open. |
+| P3 | Game / UX enhancements | [PR #9](https://github.com/b07611031/playable-me/pull/9) (Station story-first, Issue #8) and [PR #11](https://github.com/b07611031/playable-me/pull/11) (character↔story guided tour, Issue #10) **merged 2026-11-17** |
+| P3 | Architecture + game-design optimization backlog | **Ready to start.** Analysis in [`docs/OPTIMIZATION_PLAN.md`](OPTIMIZATION_PLAN.md); execution order, owner decisions and status in [`docs/TASKS.md`](TASKS.md). Step 0: #9 and #11 merged; plan re-verified (T0.4, see plan §0.1). Next: Wave 0 (G2, G3, G4). O2/O4/O8 decided 2026-11-17; O1, O3, O5–O7 open. |
 | P4 | UI skill survey + before/after | Later (U1 in `docs/TASKS.md`). Skills verified and scanned: use `impeccable` + `frontend-design`; taste-skill not used. |
 
 ## Active principles
@@ -36,6 +36,6 @@
 
 ## Current UX acceptance / dependent changes
 
-- Station UX refinement [PR #9](https://github.com/b07611031/playable-me/pull/9) is merged into `main` (2026-11-17).
-- New character-story guided journey: [Issue #10](https://github.com/b07611031/playable-me/issues/10), [spec](character-story-guided-ux-v042.md). PR #11 now targets `main`.
+- Station UX refinement [PR #9](https://github.com/b07611031/playable-me/pull/9) and character-story guided journey [PR #11](https://github.com/b07611031/playable-me/pull/11) are merged into `main` (2026-11-17).
+- New character-story guided journey: [Issue #10](https://github.com/b07611031/playable-me/issues/10), [spec](character-story-guided-ux-v042.md).
 - After any earned character, guide to a named original story, with a clear opt-out. Story-reading and gameplay unlocking remain independent.
