@@ -55,4 +55,4 @@ Use the existing `src/characters.json` `storyId` mapping to derive ordering. Do 
 
 ## Dependencies / deployment
 
-This feature branches from the **user-approved but unmerged** Station Story-First PR #9. Merge it after PR #9, not directly into main without rebasing. Public `github.io` stays on v0.4 until reviewed.
+This feature was built on Station Story-First PR #9, which merged into `main` on 2026-11-17; PR #11 now targets `main` directly. Public `github.io` updates only after this PR is reviewed and merged.
