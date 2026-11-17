@@ -98,7 +98,8 @@ export default function SpaceQuest({lang,onClose,onStart,onWin,onMilestone,onVie
  ].map(role=><span key={role.name} className={gameTier>=role.need?'earned':'locked'}>{gameTier>=role.need?'✦':'?'} <b>{gameTier>=role.need?role.name:'???'}</b><small>{role.condition}</small></span>)}</div>
       <div className="space-controls"><button disabled={result!=='running'} onClick={()=>move(-1)} aria-label={zh?'向左':'Move left'}><ArrowLeft/>{zh?'左':'LEFT'}</button><button disabled={result!=='running'} onClick={()=>move(1)} aria-label={zh?'向右':'Move right'}>{zh?'右':'RIGHT'}<ArrowRight/></button></div>
       {result==='won'&&<button className="space-start" onClick={onViewAchievements}>{zh?'成功！查看解鎖角色':'SUCCESS! SEE UNLOCKED CHARACTERS'}</button>}
-      {result!=='running'&&result!=='won'&&<button className="space-start" onClick={start}>{result==='ready'?(zh?'開始遊戲':'START GAME'):<><RotateCcw size={16}/>{zh?'再玩一次':'RETRY'}</>}</button>}
+      {result==='lost'&&gameTier>0&&<button className="space-start" onClick={onViewAchievements}>{zh?'已取得角色！閱讀角色故事':'SEE UNLOCKED CHARACTERS & STORIES'}</button>}
+      {result!=='running'&&result!=='won'&&<button className={result==='lost'&&gameTier>0?'space-retry-button':'space-start'} onClick={start}>{result==='ready'?(zh?'開始遊戲':'START GAME'):<><RotateCcw size={16}/>{zh?'再玩一次':'RETRY'}</>}</button>}
       <button className="space-skip" onClick={onClose}>{zh?'返回遊戲室':'BACK TO GAME ROOM'}</button>
       <p className="space-tip">{zh?'鍵盤 ← → 或 A / D；手機使用左右按鈕。碰撞位置在船身附近的虛線。':'Keyboard: ← → or A / D. Mobile: buttons below. The dashed line marks the collision zone.'}</p>
     </section>

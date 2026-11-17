@@ -23,7 +23,7 @@ If these contradict the code, inspect both, report the discrepancy and update th
 - `src/SharkMaze.tsx`: fixed, tested ocean maze, Yun outfit items.
 - `src/LabClicker.tsx`: 12-second AI clicker; early finish at 22 taps.
 - `src/CharacterCodex.tsx`: nine-role gallery, locked-character destination confirmation.
-- `src/CharacterUnlockPreview.tsx`: appearance-only unlock reward, then return to Station stories.
+- `src/CharacterUnlockPreview.tsx`: character → linked story reward preview; guided-read CTA with optional skip back to Station.
 - `src/CharacterSprite.tsx`, `src/characters.json`, `src/codex.ts`: original CSS character art, metadata, unlocks.
 - `vite.config.ts`: development base /, production base /playable-me/.
 - `.github/workflows/ci.yml`: validation; `deploy.yml`: deployment from main.
@@ -31,7 +31,7 @@ If these contradict the code, inspect both, report the discrepancy and update th
 ## Workflow
 
 - Prefer a small GitHub Issue for each discrete change with problem, acceptance criteria and test plan.
-- Create a feature branch from the current `main` after the public release; do not develop against the old stacked Draft PR branches.
+- Create feature branches from the current `main` after release. Exception: if building directly on a reviewed but unmerged PR, explicitly stack the new PR on that dependency and merge in order (currently Station UX PR #9 → guided story UX PR #11). Do not accidentally deploy unreviewed changes.
 - Open a PR with screenshot/recording evidence for UI changes and explicit manual QA. Do not merge or deploy an unreviewed gameplay/UI change.
 - Keep `docs/STATUS.md` concise and current, update `docs/DECISIONS.md` only for meaningful decisions.
 - Do not invent public-facing career facts, metrics, links or any personal contact details. Check before adding client/project specifics.

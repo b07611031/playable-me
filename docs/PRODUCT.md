@@ -24,7 +24,7 @@ Builder: Student Yun / Researcher Yun / Engineer Yun.
 Learner: Diver Yun / Boxer Yun / Explorer Yun.
 Gamer: Pilot Yun / Shadow Support Yun / Tactical Yun.
 
-Gameplay unlocks identities; finishing story dialogues separately counts as reading progress. Locked characters show a dark silhouette and question mark. Tapping a locked character offers a confirmation to travel to its Station. Successful mini-game opens **appearance-only unlock preview**; **Got it** returns to that same Station to view stories. Full Codex holds optional character detail and real-world evidence. Do not copy copyrighted game artwork.
+Gameplay unlocks identities; finishing story dialogues separately counts as reading progress. Locked characters show a dark silhouette and question mark. Tapping a locked character offers a confirmation to travel to its Station. Mini-game rewards show each **character → real story** connection. Primary action starts a guided tour of unread unlocked stories, automatically offering **Next Character**; **Not now / Skip Story Tour** returns to that Station without blocking professional links. Partial game rewards also encourage reading. Full Codex holds optional character detail and real-world evidence. Do not copy copyrighted game artwork.
 
 ## Functional requirements
 

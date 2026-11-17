@@ -4,7 +4,7 @@ import {ArrowLeft, ArrowRight, Check, Lock, X} from 'lucide-react'
 import CharacterSprite from './CharacterSprite'
 import {countUnlocked,groupInfo,groups,isUnlocked,roles,type Group,type Lang,type Progress,type Role} from './codex'
 
-type Props={lang:Lang;progress:Progress;onBack:()=>void;onStory:(storyId:string)=>void;preferredGroup?:Group|'all';onGoToStation:(group:Group)=>void}
+type Props={lang:Lang;progress:Progress;onBack:()=>void;onStory:(storyId:string)=>void;preferredGroup?:Group|'all';onGoToStation:(group:Group)=>void;storyTitles:Record<string,string>}
 const val=(o:{en:string;zh:string},lang:Lang)=>o[lang]
 const stationNames:Record<Group,{en:string;zh:string}>={builder:{en:'AI Lab',zh:'AI 研究室'},learner:{en:'Quest Field',zh:'冒險原野'},gamer:{en:'Game Room',zh:'遊戲房間'}}
 const hint=(group:Group,lang:Lang)=>({
@@ -13,7 +13,7 @@ const hint=(group:Group,lang:Lang)=>({
  gamer:lang==='zh'?'躲過 2 / 5 波隕石並完成太空船挑戰':'Dodge 2 / 5 meteors and complete Spaceship Dodge'
 })[group]
 
-export default function Codex({lang,progress,onBack,onStory,preferredGroup='all',onGoToStation}:Props){
+export default function Codex({lang,progress,onBack,onStory,preferredGroup='all',onGoToStation,storyTitles}:Props){
  const zh=lang==='zh'
  const [filter,setFilter]=useState<Group|'all'>(preferredGroup)
  const [selected,setSelected]=useState<Role|null>(null)
@@ -34,7 +34,8 @@ export default function Codex({lang,progress,onBack,onStory,preferredGroup='all'
       return <button key={role.id} className={'codex-card '+(earned?'codex-earned':'codex-locked')} onClick={()=>setSelected(role)} aria-label={earned?val(role.name,lang):(zh?'未解鎖角色，點擊選擇是否前往解鎖地點':'Locked role, click to visit its unlock station')}>
         <span className="codex-card-num">#{String(roles.indexOf(role)+1).padStart(2,'0')}</span>
         <CharacterSprite role={role} locked={!earned}/>
-        <span className="codex-card-info"><strong>{earned?val(role.name,lang):'???'}</strong><small>{earned?val(role.classTag,lang):(zh?'尚未解鎖':'LOCKED')}</small></span>
+        <span className="codex-card-info"><strong>{earned?val(role.name,lang):'???'}</strong><small>{earned?val(role.classTag,lang):(zh?'尚未解鎖':'LOCKED')}</small>
+        {earned&&<small className="codex-card-story">📖 {storyTitles[role.storyId]}</small>}</span>
         <span className="codex-card-foot">{earned?<><Check size={13}/>{zh?'已解鎖':'UNLOCKED'}</>:<><Lock size={13}/>{zh?'繼續探索':'KEEP EXPLORING'}</>}</span>
       </button>
     })}</div>
@@ -48,7 +49,7 @@ export default function Codex({lang,progress,onBack,onStory,preferredGroup='all'
        <p className="codex-modal-intro">{val(selected.intro,lang)}</p>
        <div className="codex-evidence"><span>01 / {zh?'真實經歷':'REAL EXPERIENCE'}</span><p>{val(selected.evidence,lang)}</p><small>{val(selected.detail,lang)}</small></div>
        <div className="codex-evidence"><span>02 / {zh?'我的收穫':'WHAT I LEARNED'}</span><p>{val(selected.takeaway,lang)}</p></div>
-       <button className="codex-modal-cta" onClick={()=>{onStory(selected.storyId);setSelected(null)}}>{zh?'閱讀完整故事':'READ THE STORY'} <ArrowRight size={17}/></button>
+       <button className="codex-modal-cta" onClick={()=>{onStory(selected.storyId);setSelected(null)}}>{zh?'閱讀':'READ'} {storyTitles[selected.storyId]} <ArrowRight size={17}/></button>
      </>:<>
        <div className="codex-unknown"><CharacterSprite role={selected} locked large/><div><h2 id="codex-detail-heading">???</h2><p>{zh?'尚未解鎖的身份':'UNKNOWN CHARACTER'}</p></div></div>
        <div className="codex-evidence"><span>✦ {zh?'解鎖線索':'UNLOCK HINT'}</span><p>{hint(selected.group,lang)}</p></div>

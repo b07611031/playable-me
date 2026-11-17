@@ -41,7 +41,7 @@ CI also uses Chromium Playwright browser smoke tests. Do not equate a passing bu
 - **Quest Field:** diving, sports, and Camino experiences. Collect mask, gloves and boots in the fixed shark maze to unlock Diver / Boxer / Explorer Yun.
 - **Game Room:** a 2D spaceship coding origin, LoL teamwork and CS2 multiplayer observations. Dodge meteors to unlock Pilot / Shadow Support / Tactical Yun.
 - **YUN CODEX:** nine original CSS-pixel characters across three groups. Locked cards are silhouettes; clicking one asks whether to visit its unlock Station.
-- Winning a game shows a short appearance-only unlock preview. **Got it** returns straight to the same Station to explore the three stories.
+- Game rewards show each character with its linked real-world story. The primary action starts a **guided reading tour** through unread unlocked characters; **Not now / Skip Story Tour** remains available. Individual Station story cards and the Codex show character → story relationships explicitly. Some partial game attempts unlock stories too.
 - Stories and professional links stay accessible without winning. Approved LinkedIn: https://www.linkedin.com/in/yunlin-ntu/ . Résumé/email are deliberately not linked until provided.
 
 ## Collaborate across agents / sessions

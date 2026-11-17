@@ -77,7 +77,8 @@ export default function SharkMaze({lang,onClose,onViewAchievements,onStart,onWin
    </div>
    <div className="maze-controls"><div/><button disabled={state!=='running'} onClick={()=>move(-1,0)} aria-label={zh?'上':'Up'}><ArrowUp/></button><div/><button disabled={state!=='running'} onClick={()=>move(0,-1)} aria-label={zh?'左':'Left'}><ArrowLeft/></button><button disabled={state!=='running'} onClick={()=>move(1,0)} aria-label={zh?'下':'Down'}><ArrowDown/></button><button disabled={state!=='running'} onClick={()=>move(0,1)} aria-label={zh?'右':'Right'}><ArrowRight/></button></div>
    {state==='won'&&<button className="space-start" onClick={onViewAchievements}>{zh?'成功！查看解鎖角色':'SUCCESS! SEE UNLOCKED CHARACTERS'}</button>}
-   {state!=='running'&&state!=='won'&&<button className="space-start" onClick={start}>{state==='ready'?(zh?'開始探險':'START EXPLORING'):<><RotateCcw size={16}/>{zh?'再試一次':'RETRY'}</>}</button>}
+   {state==='lost'&&(collected.length>0||owned.length>0)&&<button className="space-start" onClick={onViewAchievements}>{zh?'已取得角色！閱讀角色故事':'SEE UNLOCKED CHARACTERS & STORIES'}</button>}
+   {state!=='running'&&state!=='won'&&<button className={state==='lost'&&(collected.length>0||owned.length>0)?'space-retry-button':'space-start'} onClick={start}>{state==='ready'?(zh?'開始探險':'START EXPLORING'):<><RotateCcw size={16}/>{zh?'再試一次':'RETRY'}</>}</button>}
    <div className="maze-items" aria-label={zh?'角色造型收集進度':'Outfit collection'}>{ITEMS.map((item,i)=><span key={item.style} className={owned.includes(i)||collected.includes(i)?'collected':''}>{owned.includes(i)||collected.includes(i)?item.icon:'❔'} {zh?item.zh:item.en}</span>)}</div>
    <button className="space-skip" onClick={onClose}>{zh?'返回冒險原野':'BACK TO QUEST FIELD'}</button>
    <p className="space-tip">{zh?'方向鍵 / WASD / 觸控按鈕移動。收集道具可永久解鎖角色造型；三張故事卡在開始遊戲後開放。':'Arrow keys, WASD or touch to move. Pickups unlock persistent outfits; stories appear when you start.'}</p>

@@ -22,7 +22,7 @@
 | P0 | Stable v0.4 mainline release | **Complete**, PR #6 merged |
 | P1 | Free github.io HTTPS site | **Complete**, Actions run #42492540289, Issue #7 closed |
 | P2 | QR / physical postcard experiment | Not started; **fewer than 10 cards**, after verified public URL |
-| P3 | Game / UX enhancements | [Issue #8](https://github.com/b07611031/playable-me/issues/8): Station story-first UX, feature branch `feat/station-story-first-ux`, awaiting PR review |
+| P3 | Game / UX enhancements | [PR #9](https://github.com/b07611031/playable-me/pull/9) (Station story-first, Issue #8) **merged 2026-11-17**. [Issue #10](https://github.com/b07611031/playable-me/issues/10) / [PR #11](https://github.com/b07611031/playable-me/pull/11): character↔story guided tour, rebased on `main`, awaiting review |
 | P3 | Architecture + game-design optimization backlog | **Ready to start.** Analysis in [`docs/OPTIMIZATION_PLAN.md`](OPTIMIZATION_PLAN.md); execution order, owner decisions and status in [`docs/TASKS.md`](TASKS.md). Next: Step 0 (land #9 → #11, re-verify plan), then Wave 0 (G2, G3, G4). O2/O4/O8 decided 2026-11-17; O1, O3, O5–O7 open. |
 | P4 | UI skill survey + before/after | Later (U1 in `docs/TASKS.md`). Skills verified and scanned: use `impeccable` + `frontend-design`; taste-skill not used. |
 
@@ -33,3 +33,9 @@
 - Stories and professional links remain accessible without finishing mini-games.
 - Public deployment was confirmed by the user and GitHub Pages success; future releases still require successful deploy checks and real-device acceptance.
 - The old Draft PRs #1–#5 are development history; **start new features from main**, not those stacked branches.
+
+## Current UX acceptance / dependent changes
+
+- Station UX refinement [PR #9](https://github.com/b07611031/playable-me/pull/9) is merged into `main` (2026-11-17).
+- New character-story guided journey: [Issue #10](https://github.com/b07611031/playable-me/issues/10), [spec](character-story-guided-ux-v042.md). PR #11 now targets `main`.
+- After any earned character, guide to a named original story, with a clear opt-out. Story-reading and gameplay unlocking remain independent.
