@@ -27,7 +27,7 @@ try {
   assert.ok(ready, 'Vite root failed to serve index.html: ' + serverOutput)
   browser = await chromium.launch({ headless: true, args: ['--no-sandbox'] })
 
-  for (const viewport of [{width:1440,height:900},{width:390,height:844}]) {
+  for (const viewport of [{width:1440,height:900},{width:390,height:844},{width:360,height:800}]) {
     const context = await browser.newContext({ viewport })
     const page = await context.newPage()
     const errors = []
@@ -37,6 +37,21 @@ try {
     assert.equal(response?.status(), 200, 'Local dev root must respond OK')
     await page.locator('h1').first().waitFor({state:'visible',timeout:10000})
     assert.match(await page.locator('h1').first().innerText(), /THE STORY/i, 'Homepage title should render')
+
+    // G2: every visible header button must sit fully inside the viewport, and the
+    // language switch (its only entry point) must work by a real click.
+    const headerButtons = await page.locator('.topbar button').evaluateAll(buttons => buttons
+      .map(b => ({label: b.getAttribute('aria-label') || b.textContent?.trim(), rect: b.getBoundingClientRect()}))
+      .filter(b => b.rect.width > 0 && b.rect.height > 0)
+      .map(b => ({label: b.label, left: Math.round(b.rect.left), right: Math.round(b.rect.right)})))
+    for (const b of headerButtons) {
+      assert.ok(b.left >= 0 && b.right <= viewport.width,
+        `Header button "${b.label}" (${b.left}-${b.right}) must be inside ${viewport.width}px viewport`)
+    }
+    await page.getByRole('button', {name:/change language/i}).click()
+    assert.equal(await page.evaluate(() => document.documentElement.lang), 'zh-TW', 'Language switch should change to zh-TW')
+    await page.getByRole('button', {name:/change language/i}).click()
+    assert.equal(await page.evaluate(() => document.documentElement.lang), 'en', 'Language switch should return to English')
     await page.getByRole('button', {name: /start exploring/i}).click()
     await page.getByRole('heading', {name:/WORLD MAP/i}).waitFor()
     await page.getByRole('button', {name:/open nine-character codex/i}).click()
