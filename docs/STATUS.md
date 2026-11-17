@@ -1,6 +1,6 @@
 # Playable Me — Current Project Status
 
-**Updated:** 2026-11-08
+**Updated:** 2026-11-17
 **Product:** public mobile-first interactive personal portfolio for Yun Lin
 **Priority:** P0 and P1 completed → P2 QR / <10 trial postcards and P3 scoped UX refinement.
 
@@ -12,6 +12,7 @@
 - **P1 COMPLETE:** [GitHub Pages successful deployment](https://github.com/b07611031/playable-me/actions/runs/42492540289) has **build** and **deploy** jobs both completed successfully. Site availability is also confirmed by the owner. The initial unsuccessful workflow remains in history as a resolved setup issue.
 - **Resolved:** [Issue #7 — Enable GitHub Pages source](https://github.com/b07611031/playable-me/issues/7) is closed after the successful Pages deployment.
 - Published free-site URL: `https://b07611031.github.io/playable-me/` (owner confirmed P1 complete; deploy workflow succeeded). Test QR scanning on real devices before printing.
+- **To re-verify (T0.5):** the P1 lines above come from PR #9 (owner confirmation + run #42492540289). Issue #7 is closed. T0.5 in `docs/TASKS.md` re-checks the latest Deploy run and opens the public URL in a browser before this is restated.
 - Release workflow: `.github/workflows/deploy.yml` triggers on main; CI: `.github/workflows/ci.yml`.
 
 ## Workstreams

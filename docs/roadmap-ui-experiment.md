@@ -33,6 +33,8 @@
 
 ## Phase 2：UI 設計技能候選（暫不套用）
 
+> 2026-11-16 更新：兩個候選名稱的初步查核結果（`Leonxlnx/taste-skill`；「Impact-Cable」很可能是 `pbakaus/impeccable`）與適用建議，見 [`docs/OPTIMIZATION_PLAN.md`](OPTIMIZATION_PLAN.md) 第 7 節。兩個 repo 的 README 已直接讀取，仍未安裝。
+
 以下內容來自使用者提供的網路貼文，**尚未核對 GitHub 專案網址、作者、安裝方式、實際功能與 Star 數**。不可在核對前當成驗證事實，也不要因相似名稱自行安裝未知程式。
 
 ### Taste-Skill
