@@ -52,6 +52,9 @@ try {
     await page.locator('.codex-locked').first().click()
     await page.getByRole('button',{name:/GO TO AI LAB/i}).click()
     await page.locator('.zone-heading h1').filter({hasText:/AI LAB/i}).waitFor()
+    assert.equal(await page.locator('.codex-zone-link').count(),0,'Gallery link must not repeat inside Station')
+    assert.ok(await page.locator('.quest-gate').evaluate(el => Boolean(el.compareDocumentPosition(document.querySelector('.stories-hidden')) & Node.DOCUMENT_POSITION_FOLLOWING)),
+      'Before completion, mini-game should appear above the locked stories')
 
     // A full AI Lab run reveals appearances only, then returns to station stories.
     await page.getByRole('button',{name:/PLAY MINI GAME/i}).click()
@@ -66,6 +69,14 @@ try {
     assert.equal(await page.locator('.unlock-preview').count(),0,'Acknowledge closes preview')
     await page.locator('.zone-heading h1').filter({hasText:/AI LAB/i}).waitFor()
     assert.equal(await page.locator('.story-card:not(.story-locked)').count(),3,'Return to unlocked station stories')
+    assert.ok(await page.locator('.story-list').evaluate(el => Boolean(el.compareDocumentPosition(document.querySelector('.quest-gate')) & Node.DOCUMENT_POSITION_FOLLOWING)),
+      'After completion, stories must precede the replay panel')
+    assert.equal(await page.getByRole('button',{name:/PLAY AGAIN/i}).count(),1,'Completed game should be presented as replay, not the primary entry')
+    await page.waitForFunction(() => {
+      const heading=document.querySelector('.zone-story-head')
+      const top=heading?.getBoundingClientRect().top ?? 10000
+      return top>=-10 && top<=190
+    },null,{timeout:5000})
 
     // Locked Gamer and Learner characters should navigate to their respective stations.
     await page.getByRole('button',{name:/Open nine-character codex/i}).click()
@@ -78,6 +89,38 @@ try {
     await page.locator('.codex-locked').first().click()
     await page.getByRole('button',{name:/GO TO QUEST FIELD/i}).click()
     await page.locator('.zone-heading h1').filter({hasText:/QUEST FIELD/i}).waitFor()
+    assert.equal(await page.locator('.codex-zone-link').count(),0,'Station must not repeat Codex entry')
+
+    // Persisted unlock tiers should retain story-first layout after reload for all Stations.
+    await page.evaluate(() => {
+      localStorage.setItem('pm-outfits','[0,1,2]')
+      localStorage.setItem('pm-game-tier','3')
+    })
+    await page.reload({waitUntil:'networkidle'})
+    await page.getByRole('button', {name: /start exploring/i}).click()
+    for (const station of ['AI LAB','QUEST FIELD','GAME ROOM']) {
+      await page.locator('.preview-row').filter({hasText:station}).click()
+      await page.locator('.zone-heading h1').filter({hasText:station}).waitFor()
+      assert.equal(await page.locator('.codex-zone-link').count(),0,'No duplicate Gallery link in '+station)
+      assert.ok(await page.locator('.story-list').evaluate(el => Boolean(el.compareDocumentPosition(document.querySelector('.quest-gate')) & Node.DOCUMENT_POSITION_FOLLOWING)),
+        'Stories should appear before replay in previously cleared '+station)
+      await page.locator('.back-link').click()
+    }
+
+    // Partial AI Lab runs are complete attempts too: story first, repeat challenge below.
+    await page.evaluate(() => {
+      localStorage.setItem('pm-lab-tier','1')
+      localStorage.setItem('pm-game-tier','0')
+      localStorage.setItem('pm-outfits','[]')
+    })
+    await page.reload({waitUntil:'networkidle'})
+    await page.getByRole('button', {name: /start exploring/i}).click()
+    await page.locator('.preview-row').filter({hasText:'AI LAB'}).click()
+    assert.equal(await page.locator('.story-card:not(.story-locked)').count(),1,'Partial AI Lab score should reveal one story')
+    assert.ok(await page.locator('.story-list').evaluate(el => Boolean(el.compareDocumentPosition(document.querySelector('.quest-gate')) & Node.DOCUMENT_POSITION_FOLLOWING)),
+      'A partial run must still prioritize the unlocked story over another game')
+    assert.equal(await page.getByRole('button',{name:/READ ALL STORIES INSTEAD/i}).count(),1,
+      'Partial AI Lab runs should preserve the accessibility shortcut')
 
     await page.reload({waitUntil:'networkidle'})
     assert.equal(await page.locator('h1').count(),1,'App should survive reload')
