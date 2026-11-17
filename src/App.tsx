@@ -54,8 +54,6 @@ function App(){
  const [linksOpen,setLinksOpen]=useState(false)
  const [spaceOpen,setSpaceOpen]=useState(false)
  const [spaceWon,setSpaceWon]=useState(false)
- const [gameStarted,setGameStarted]=useState(false)
- const [fieldStarted,setFieldStarted]=useState(false)
  const [sharkOpen,setSharkOpen]=useState(false)
  const [sharkWon,setSharkWon]=useState(false)
  const [outfits,setOutfits]=useState<number[]>(readOutfits)
@@ -65,7 +63,6 @@ function App(){
  const [codexGroup,setCodexGroup]=useState<Group|'all'>('all')
  const [unlockPreview,setUnlockPreview]=useState<Group|null>(null)
  const storyHeadingRef=useRef<HTMLDivElement|null>(null)
- const [skipGames,setSkipGames]=useState<Record<ZoneId,boolean>>({lab:false,field:false,game:false})
  const t=labels[lang]
  const zone=zones.find(z=>z.id===zoneId)!
  const zoneComplete=(z:Zone)=>z.stories.every(s=>opened.includes(s.id))
@@ -102,7 +99,7 @@ function App(){
    if(guidedStories)focusStationStories()
  }
  const goMap=()=>{setActiveStory(null);setScreen(badges===3?'ending':'map')}
- const reset=()=>{setGuidedStories(null);setUnlockPreview(null);setOpened([]);setLabTier(0);setGameTier(0);setOutfits([]);setGameStarted(false);setFieldStarted(false);setSpaceWon(false);setSharkWon(false);setSkipGames({lab:false,field:false,game:false});setScreen('home');setActiveStory(null)}
+ const reset=()=>{setGuidedStories(null);setUnlockPreview(null);setOpened([]);setLabTier(0);setGameTier(0);setOutfits([]);setSpaceWon(false);setSharkWon(false);setScreen('home');setActiveStory(null)}
  const completed=zoneComplete(zone)
  const progress:Progress={labTier,gameTier,outfits}
  const codexCount=countUnlocked(progress)
@@ -119,9 +116,8 @@ function App(){
    if(!initial){focusStationStories();return}
    setGuidedStories({storyIds,index:0});setActiveStory(initial);setLine(0)
  }
- const unlockedCount=skipGames[zone.id]?3:zone.id==='game'?((gameStarted||gameTier>0)?3:0):zone.id==='field'?((fieldStarted||outfits.length>0)?3:0):labTier
- // After *any* gameplay unlock, prioritize newly available stories, even if a timed
- // attempt ends below the top score. Saved tiers/outfits preserve the order on reload.
+ // G4: stories are always readable; mini-games only unlock characters. A saved tier or
+ // outfit turns the mini-game button into a replay.
  const hasGameplayUnlock=zone.id==='game'?(spaceWon||gameTier>0):zone.id==='field'?(sharkWon||outfits.length>0):labTier>0
  const zoneGroup:Group=zone.id==='lab'?'builder':zone.id==='field'?'learner':'gamer'
  const zoneStories=roles.filter(role=>role.group===zoneGroup).map(role=>{
@@ -132,7 +128,6 @@ function App(){
  const activeRole=activeStory?roles.find(role=>role.storyId===activeStory.id):undefined
  const activeRoleUnlocked=activeRole?isUnlocked(activeRole,progress):false
  const storyTitles=Object.fromEntries(zones.flatMap(z=>z.stories).map(s=>[s.id,tr(s.title,lang)]))
-  const storyAccess=unlockedCount>0
  const launchGame=()=>{if(zone.id==='game')setSpaceOpen(true);else if(zone.id==='field')setSharkOpen(true);else setLabOpen(true)}
  const questPanel=<>
     <div className="quest-gate">
@@ -140,17 +135,16 @@ function App(){
         <span className="eyebrow">MINI QUEST / {zone.id==='game'?'001':zone.id==='field'?'002':'003'}</span>
         <h2>{zone.id==='game'?'🚀 SPACESHIP DODGE':zone.id==='field'?'🦈 OCEAN MAZE':'⚡ AI POWER-UP LAB'}</h2>
         <p>{zone.id==='game'
-          ?(lang==='zh'?'閃避 2 顆、5 顆隕石並完成整場遊戲，可依序解鎖三種 Gamer 角色；故事卡在開始遊戲後就能閱讀。':'Dodge 2 and 5 meteors, then finish the round to reveal three Gamer identities. Stories are available as soon as you start.')
+          ?(lang==='zh'?'閃避 2 顆、5 顆隕石並完成整場遊戲，可依序解鎖三種 Gamer 角色。':'Dodge 2 and 5 meteors, then finish the round to reveal three Gamer identities.')
           :zone.id==='field'
-          ?(lang==='zh'?'操作 Yun 收集潛水鏡、拳套與探險鞋，同時避開鯊魚。開始探索即可看到三張故事卡。':'Guide Yun through an underwater maze, collecting a dive mask, gloves and explorer boots while avoiding the shark. Starting reveals the three stories.')
-          :(lang==='zh'?'12 秒內連點生成能量！累積 5、12、22 次，逐步解鎖一、二、三張故事卡。':'Tap for 12 seconds! Reach 5, 12 or 22 taps to unlock one, two or three stories.')}</p>
+          ?(lang==='zh'?'操作 Yun 收集潛水鏡、拳套與探險鞋，同時避開鯊魚。每件裝備解鎖一個 Learner 角色。':'Guide Yun through an underwater maze, collecting a dive mask, gloves and explorer boots while avoiding the shark. Each item unlocks one Learner character.')
+          :(lang==='zh'?'12 秒內連點生成能量！累積 5、12、22 次，逐步解鎖三個 Builder 角色。':'Tap for 12 seconds! Reach 5, 12 or 22 taps to unlock the three Builder characters.')}</p>
         {zone.id==='game'&&spaceWon&&<span className="mini-win">✓ {lang==='zh'?'太空船挑戰完成':'SPACESHIP CLEARED'}</span>}
         {zone.id==='field'&&sharkWon&&<span className="mini-win">✓ {lang==='zh'?'成功躲避鯊魚':'OCEAN MAZE CLEARED'}</span>}
-        {zone.id==='lab'&&<span className="mini-win">⚡ {lang==='zh'?'已解鎖':'UNLOCKED'} {unlockedCount}/3</span>}
+        {zone.id==='lab'&&<span className="mini-win">⚡ {lang==='zh'?'已解鎖角色':'CHARACTERS'} {labTier}/3</span>}
       </div>
       <button className="quest-play-button" onClick={launchGame}><Gamepad2 size={18}/>{hasGameplayUnlock?(lang==='zh'?'再次挑戰':'PLAY AGAIN'):(lang==='zh'?'開始遊戲':'PLAY MINI GAME')}</button>
     </div>
-    {unlockedCount<3&&<div className="gate-skip-row"><span>{lang==='zh'?'沒有時間玩？':'Short on time?'}</span><button onClick={()=>setSkipGames(p=>({...p,[zone.id]:true}))}>{lang==='zh'?'直接閱讀全部故事':'READ ALL STORIES INSTEAD'} <ArrowRight size={14}/></button></div>}
  </>
  return <div className="app-shell">
   <div className="stars" aria-hidden="true"/>
@@ -162,11 +156,10 @@ function App(){
    {screen==='zone'&&<section className="zone-screen">
     <button className="back-link" onClick={goMap}><ArrowLeft size={16}/>{t.back}</button>
     <div className="zone-heading"><p className="eyebrow">02 / {t.chapter} · {zone.id.toUpperCase()}</p><h1 style={{color:zone.accent}}>{tr(zone.name,lang)}</h1><p>{tr(zone.trait,lang)}</p></div>
-    <PixelScene zone={zone.id} stories={zoneStories.map(entry=>entry.story).slice(0,unlockedCount)} completed={opened} lang={lang} onInteract={openStory}/>
-    {!hasGameplayUnlock&&questPanel}
-    {storyAccess?<><div className="zone-story-head" ref={storyHeadingRef} tabIndex={-1}><div><span className="eyebrow">{t.read}</span><h2>{lang==='en'?'DISCOVER THE STORY':'探索這段故事'}</h2></div><span className="story-count">{zone.stories.filter(s=>opened.includes(s.id)).length}/3</span></div>
+    <PixelScene zone={zone.id} stories={zoneStories.map(entry=>entry.story)} completed={opened} lang={lang} onInteract={openStory}/>
+    <div className="zone-story-head" ref={storyHeadingRef} tabIndex={-1}><div><span className="eyebrow">{t.read}</span><h2>{lang==='en'?'DISCOVER THE STORY':'探索這段故事'}</h2></div><span className="story-count">{zone.stories.filter(s=>opened.includes(s.id)).length}/3</span></div>
       <p className="zone-instruction">{lang==='zh'?'點擊場景物件或下方故事卡。完整閱讀才算完成。':'Tap the scene objects or cards below. Finish a dialogue to record completion.'}</p>
-      <div className="story-list">{zoneStories.map(({role,story},i)=>i<unlockedCount?
+      <div className="story-list">{zoneStories.map(({role,story},i)=>
         <button className="story-card role-story-card" key={story.id} onClick={()=>openStory(story)}
           aria-label={`${isUnlocked(role,progress)?role.name[lang]:(lang==='zh'?'未解鎖角色':'Locked character')} — ${tr(story.title,lang)}`}>
           <span className="story-character-portrait"><CharacterSprite role={role} locked={!isUnlocked(role,progress)}/></span>
@@ -180,14 +173,9 @@ function App(){
             <small>{tr(story.teaser,lang)}</small>
           </span>
           <span className={'story-status '+(opened.includes(story.id)?'is-done':'')}>{opened.includes(story.id)?<Check size={17}/>:<ChevronRight size={17}/>}</span>
-        </button>:
-        <div key={story.id} className="story-card story-locked role-story-card" aria-label={lang==='zh'?'尚未解鎖故事':'Story not yet unlocked'}>
-          <span className="story-character-portrait"><CharacterSprite role={role} locked/></span>
-          <span className="story-details"><b>0{i+1} / {lang==='zh'?'尚未解鎖':'LOCKED STORY'}</b><small>{lang==='zh'?'繼續挑戰，或選擇直接閱讀':'Keep playing, or choose to read directly'}</small></span>
-        </div>)}</div>
-    </>:<div className="stories-hidden"><span>🔐</span><b>{lang==='zh'?'故事尚未解鎖':'STORIES ARE LOCKED'}</b><p>{lang==='zh'?'按下「開始遊戲」，或選擇直接閱讀故事。':'Start the mini-game to reveal the story cards, or use the reading shortcut.'}</p></div>}
+        </button>)}</div>
     {completed&&<div className="achievement-unlocked"><Trophy size={24}/><div><b>{t.completed}</b><span>{tr(zone.trait,lang)}</span></div></div>}
-    {hasGameplayUnlock&&questPanel}
+    {questPanel}
     <button className="wide-back" onClick={goMap}>{t.back} <ArrowRight size={18}/></button>
    </section>}
       {screen==='ending'&&<section className="end-screen"><div className="end-stars">✦ &nbsp; ✧ &nbsp; ✦</div><Trophy size={46} className="end-trophy"/><p className="eyebrow">{t.finish}</p><h1>{t.summary}</h1><p className="end-line">{t.ending}</p><div className="achievement-list">{zones.map(z=><span key={z.id}><Check size={15}/> {tr(z.trait,lang)}</span>)}</div><p className="ending-tag">Started with Games. Built with AI. Always Learning.</p><button className="primary-cta" onClick={()=>setLinksOpen(true)}>{t.links}<ArrowRight size={19}/></button><button className="secondary-link" onClick={()=>openCodex()}>{lang==='zh'?'查看九角色圖鑑':'VIEW ALL NINE CHARACTERS'}</button><button className="secondary-link" onClick={()=>setScreen('map')}>{t.revisit}</button><button className="restart-button" onClick={reset}><RotateCcw size={14}/>{t.again}</button></section>}
@@ -235,9 +223,9 @@ function App(){
     </section>
   </div>}
   {linksOpen&&<div className="overlay" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setLinksOpen(false)}}><section className="links-modal" role="dialog" aria-modal="true" aria-label={t.linkTitle}><div className="dialogue-bar"><span>✦ {t.linkTitle}</span><button className="close-modal" onClick={()=>setLinksOpen(false)} aria-label={t.exit}><X size={18}/></button></div><h2>LET’S CONNECT.</h2><p>{t.notready}</p><a className="external-link" href={github} target="_blank" rel="noopener noreferrer"><Github size={20}/> GitHub <ExternalLink size={16}/></a><div className="disabled-link"><BookOpen size={20}/>{t.portfolio}</div><a className="external-link" href={linkedin} target="_blank" rel="noopener noreferrer"><Code2 size={20}/> LinkedIn <ExternalLink size={16}/></a><button className="modal-return" onClick={()=>setLinksOpen(false)}><X size={15}/>{t.exit}</button></section></div>}
-  {spaceOpen&&<SpaceQuest lang={lang} onClose={()=>setSpaceOpen(false)} onStart={()=>setGameStarted(true)} onMilestone={tier=>setGameTier(old=>Math.max(old,tier))} onWin={()=>setSpaceWon(true)} onViewAchievements={()=>showUnlockPreview('gamer')}/>} 
-  {sharkOpen&&<SharkMaze lang={lang} onClose={()=>setSharkOpen(false)} onStart={()=>setFieldStarted(true)} onWin={()=>setSharkWon(true)} onViewAchievements={()=>showUnlockPreview('learner')} owned={outfits} onCollect={item=>setOutfits(p=>p.includes(item)?p:[...p,item])}/>} 
-  {labOpen&&<LabClicker lang={lang} onClose={()=>setLabOpen(false)} onViewAchievements={()=>showUnlockPreview('builder')} onStart={()=>{}} onUnlock={tier=>setLabTier(old=>Math.max(old,tier))} initialTier={labTier}/>}
+  {spaceOpen&&<SpaceQuest lang={lang} onClose={()=>setSpaceOpen(false)} onMilestone={tier=>setGameTier(old=>Math.max(old,tier))} onWin={()=>setSpaceWon(true)} onViewAchievements={()=>showUnlockPreview('gamer')}/>} 
+  {sharkOpen&&<SharkMaze lang={lang} onClose={()=>setSharkOpen(false)} onWin={()=>setSharkWon(true)} onViewAchievements={()=>showUnlockPreview('learner')} owned={outfits} onCollect={item=>setOutfits(p=>p.includes(item)?p:[...p,item])}/>} 
+  {labOpen&&<LabClicker lang={lang} onClose={()=>setLabOpen(false)} onViewAchievements={()=>showUnlockPreview('builder')} onUnlock={tier=>setLabTier(old=>Math.max(old,tier))} initialTier={labTier}/>}
   {unlockPreview&&<CharacterUnlockPreview lang={lang} group={unlockPreview} progress={progress} storyTitles={storyTitles}
     unreadCount={roles.filter(role=>role.group===unlockPreview&&isUnlocked(role,progress)&&!opened.includes(role.storyId)).length}
     onReadStories={()=>startGuidedStories(unlockPreview)} onAcknowledge={acknowledgeUnlock}/>}

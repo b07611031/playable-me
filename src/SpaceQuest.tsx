@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { ArrowLeft, ArrowRight, RotateCcw, X } from 'lucide-react'
 
-type Props = { lang:'en'|'zh'; onClose:()=>void; onStart:()=>void; onWin:()=>void; onMilestone:(tier:number)=>void; onViewAchievements:()=>void }
+type Props = { lang:'en'|'zh'; onClose:()=>void; onWin:()=>void; onMilestone:(tier:number)=>void; onViewAchievements:()=>void }
 type Meteor = { id:number; lane:number; progress:number; checked:boolean }
 const TOTAL = 10
 const SPAWN_MS = 1150
 const FALL_MS = 2100
 
-export default function SpaceQuest({lang,onClose,onStart,onWin,onMilestone,onViewAchievements}:Props) {
+export default function SpaceQuest({lang,onClose,onWin,onMilestone,onViewAchievements}:Props) {
   const zh=lang==='zh'
   const [ship,setShip]=useState(1)
   const lane=useRef(1)
@@ -22,8 +22,8 @@ export default function SpaceQuest({lang,onClose,onStart,onWin,onMilestone,onVie
   const [dodged,setDodged]=useState(0)
   const [gameTier,setGameTier]=useState(0)
   const [round,setRound]=useState(0)
-  const callbacks=useRef({onStart,onWin,onMilestone})
-  callbacks.current={onStart,onWin,onMilestone}
+  const callbacks=useRef({onWin,onMilestone})
+  callbacks.current={onWin,onMilestone}
   const move=(dir:-1|1)=>{
     if(game.current!=='running')return
     lane.current=Math.min(2,Math.max(0,lane.current+dir))
@@ -33,7 +33,6 @@ export default function SpaceQuest({lang,onClose,onStart,onWin,onMilestone,onVie
     lane.current=1;setShip(1);live.current=[];setMeteors([])
     hp.current=3;setHealth(3);setWaves(0);setDodged(0);setGameTier(0);setHit(false)
     game.current='running';setResult('running');setRound(r=>r+1)
-    callbacks.current.onStart()
   }
   useEffect(()=>{
     if(result!=='running')return
@@ -89,7 +88,7 @@ export default function SpaceQuest({lang,onClose,onStart,onWin,onMilestone,onVie
           {ship===i&&<span className="space-ship" aria-label={zh?'太空船':'Spaceship'}>🚀</span>}
         </div>)}
         <div className="space-impact-line" aria-hidden="true"/>
-        {result!=='running'&&<div className="space-message"><strong>{result==='ready'?'READY PLAYER ONE?':result==='won'?(zh?'任務完成！':'QUEST COMPLETE!'):(zh?'太空船受損！':'SHIP DOWN!')}</strong>{result==='won'&&<small>{zh?'成功閃避！三張故事卡現在可以探索。':'You made it through the asteroid field!'}</small>}</div>}
+        {result!=='running'&&<div className="space-message"><strong>{result==='ready'?'READY PLAYER ONE?':result==='won'?(zh?'任務完成！':'QUEST COMPLETE!'):(zh?'太空船受損！':'SHIP DOWN!')}</strong>{result==='won'&&<small>{zh?'成功穿越隕石帶！':'You made it through the asteroid field!'}</small>}</div>}
       </div>
       <div className="space-role-progress" aria-label={zh?'角色解鎖進度':'Character unlock progress'}>{[
   {name:'Pilot Yun',condition:zh?'閃避 2 顆':'DODGE 2',need:1},

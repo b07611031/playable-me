@@ -1,5 +1,7 @@
 # Playable Me — Mini-game Rewards & Success UX (v0.3.1)
 
+> **Superseded in part by G4 (2026-11-17, owner decision O2):** stories are readable by default and mini-games unlock **characters only**. Everything below about mini-games unlocking or revealing story cards, and the "read all stories" shortcut, no longer applies. Tier thresholds, early finish at 22 taps and the success/retry buttons still apply. See `docs/DECISIONS.md` and `docs/OPTIMIZATION_PLAN.md` G4.
+
 ## Goals
 
 Adjust existing mini-games according to playtest feedback, without applying the deferred visual UI skill redesign.

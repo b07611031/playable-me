@@ -20,7 +20,7 @@ export default function CharacterUnlockPreview({
  return <div className="overlay" role="presentation">
    <section className="unlock-preview" role="dialog" aria-modal="true" aria-labelledby="unlock-preview-title">
      <span className="eyebrow">✦ CHARACTER UNLOCKED</span>
-     <h2 id="unlock-preview-title">{zh?'解鎖角色，也解鎖他的故事！':'CHARACTERS & STORIES UNLOCKED!'}</h2>
+     <h2 id="unlock-preview-title">{zh?'解鎖新角色！':'CHARACTERS UNLOCKED!'}</h2>
      <p className="unlock-preview-subtitle">{zh?'這些角色都是 Yun 的真實經歷。來認識角色背後的故事吧。':'Every character comes from a real chapter of Yun’s life. Meet the person behind each role.'}</p>
      <div className="unlock-preview-characters">
        {unlocked.map(role=><div className="unlock-preview-character" key={role.id}>

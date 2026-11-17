@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { RotateCcw, X, Zap } from 'lucide-react'
-type Props={lang:'en'|'zh';onClose:()=>void;onViewAchievements:()=>void;onStart:()=>void;onUnlock:(tier:number)=>void;initialTier:number}
+type Props={lang:'en'|'zh';onClose:()=>void;onViewAchievements:()=>void;onUnlock:(tier:number)=>void;initialTier:number}
 const thresholds=[5,12,22]
 const projects=[['Plantman','Plantman'],['Long-video tracking','長影片追蹤'],['SOP Annotator','SOP Annotator']] as const
-export default function LabClicker({lang,onClose,onViewAchievements,onStart,onUnlock,initialTier}:Props){
+export default function LabClicker({lang,onClose,onViewAchievements,onUnlock,initialTier}:Props){
  const zh=lang==='zh'
  const [running,setRunning]=useState(false)
  const [succeeded,setSucceeded]=useState(false)
@@ -12,8 +12,8 @@ export default function LabClicker({lang,onClose,onViewAchievements,onStart,onUn
  const [best,setBest]=useState(initialTier)
  const total=useRef(0)
  const finished=useRef(false)
- const callbacks=useRef({onStart,onUnlock});callbacks.current={onStart,onUnlock}
- const start=()=>{total.current=0;finished.current=false;setSucceeded(false);setClicks(0);setSeconds(12);setRunning(true);callbacks.current.onStart()}
+ const callbacks=useRef({onUnlock});callbacks.current={onUnlock}
+ const start=()=>{total.current=0;finished.current=false;setSucceeded(false);setClicks(0);setSeconds(12);setRunning(true)}
  const tap=()=>{
    if(!running||finished.current)return
    total.current++;setClicks(total.current)
@@ -32,7 +32,7 @@ export default function LabClicker({lang,onClose,onViewAchievements,onStart,onUn
   <section className="space-quest lab-quest" role="dialog" aria-modal="true" aria-labelledby="lab-title">
    <header className="space-titlebar"><span>⚡ MINI QUEST / 003</span><button onClick={onClose} aria-label={zh?'關閉':'Close'}><X size={18}/></button></header>
    <h2 id="lab-title">{zh?'AI 能量充電站':'AI POWER-UP LAB'}</h2>
-   <p>{zh?'12 秒內連點累積能量，逐步解鎖三個 AI 工程故事。也可以直接選擇瀏覽故事。':'Tap to generate energy in 12 seconds and unlock three engineering stories. You can also browse stories directly.'}</p>
+   <p>{zh?'12 秒內連點累積能量，逐步解鎖三個 Builder 角色。故事隨時都能閱讀。':'Tap to generate energy in 12 seconds and unlock three Builder characters. The stories are always open to read.'}</p>
    <div className="space-stats"><span>⏱ {seconds}s</span><span>⚡ {clicks}</span><span>{zh?'最高解鎖':'UNLOCKED'} {Math.max(tier,best)}/3</span></div>
    <div className="lab-progress"><div style={{width:`${Math.min(100,clicks/22*100)}%`}}/></div>
    <div className="lab-milestones">{thresholds.map((n,i)=><span key={n} className={Math.max(tier,best)>i?'earned':''}>{Math.max(tier,best)>i?'✓':'🔒'} <strong>{projects[i][zh?1:0]}</strong><small>{n} {zh?'次':'taps'}</small></span>)}</div>

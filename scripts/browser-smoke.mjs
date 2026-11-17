@@ -39,6 +39,35 @@ try {
     assert.match(await page.locator('h1').first().innerText(), /THE STORY/i, 'Homepage title should render')
     await page.getByRole('button', {name: /start exploring/i}).click()
     await page.getByRole('heading', {name:/WORLD MAP/i}).waitFor()
+
+    // G4: a fresh visitor sees three readable story cards in every Station without
+    // clicking anything; stories come before the mini-game, and characters stay locked.
+    const storiesFirst=()=>page.locator('.story-list').evaluate(el => Boolean(el.compareDocumentPosition(document.querySelector('.quest-gate')) & Node.DOCUMENT_POSITION_FOLLOWING))
+    for (const station of ['AI LAB','QUEST FIELD','GAME ROOM']) {
+      await page.locator('.preview-row').filter({hasText:station}).click()
+      await page.locator('.zone-heading h1').filter({hasText:station}).waitFor()
+      assert.equal(await page.locator('button.story-card').count(),3,station+': three readable story cards by default')
+      assert.equal(await page.locator('.story-locked, .stories-hidden').count(),0,station+': no locked stories')
+      assert.equal(await page.getByRole('button',{name:/READ ALL STORIES INSTEAD/i}).count(),0,station+': no skip button needed')
+      assert.equal(await page.locator('.story-role-link').filter({hasText:'???'}).count(),3,station+': characters stay locked until played')
+      assert.ok(await storiesFirst(),station+': stories come before the mini-game')
+      assert.equal(await page.getByRole('button',{name:/PLAY MINI GAME/i}).count(),1,station+': mini-game stays available')
+      await page.locator('.back-link').click()
+    }
+
+    // G1: read all Quest Field stories without playing, reload: still readable and recorded.
+    await page.locator('.preview-row').filter({hasText:'QUEST FIELD'}).click()
+    for (let i=0;i<3;i++) {
+      await page.locator('button.story-card').nth(i).click()
+      while (await page.locator('.dialogue-next').count()) await page.locator('.dialogue-next').click()
+    }
+    await page.reload({waitUntil:'networkidle'})
+    await page.getByRole('button', {name: /start exploring/i}).click()
+    await page.locator('.preview-row').filter({hasText:'QUEST FIELD'}).click()
+    assert.equal(await page.locator('button.story-card').count(),3,'After reload, read stories stay readable')
+    assert.equal(await page.locator('.story-status.is-done').count(),3,'After reload, read state is kept')
+    assert.equal(await page.locator('.story-role-link').filter({hasText:'???'}).count(),3,'Reading does not unlock characters')
+    await page.locator('.back-link').click()
     await page.getByRole('button', {name:/open nine-character codex/i}).click()
     await page.getByRole('heading', {name:/YUN CODEX/i}).waitFor()
     assert.equal(await page.locator('.codex-card').count(), 9, 'Should display 9 role cards')
@@ -53,8 +82,7 @@ try {
     await page.getByRole('button',{name:/GO TO AI LAB/i}).click()
     await page.locator('.zone-heading h1').filter({hasText:/AI LAB/i}).waitFor()
     assert.equal(await page.locator('.codex-zone-link').count(),0,'Gallery link must not repeat inside Station')
-    assert.ok(await page.locator('.quest-gate').evaluate(el => Boolean(el.compareDocumentPosition(document.querySelector('.stories-hidden')) & Node.DOCUMENT_POSITION_FOLLOWING)),
-      'Before completion, mini-game should appear above the locked stories')
+    assert.ok(await storiesFirst(),'Before playing, stories still precede the mini-game')
 
     // Complete AI Lab and walk through the strongly guided character -> story flow.
     await page.getByRole('button',{name:/PLAY MINI GAME/i}).click()
@@ -62,7 +90,7 @@ try {
     const tap=page.getByRole('button',{name:/Tap to generate energy/i})
     for(let i=0;i<22;i++)await tap.click()
     await page.getByRole('button',{name:/SUCCESS! SEE UNLOCKED CHARACTERS/i}).click()
-    await page.getByRole('dialog',{name:/CHARACTERS & STORIES UNLOCKED/i}).waitFor()
+    await page.getByRole('dialog',{name:/^CHARACTERS UNLOCKED/i}).waitFor()
     assert.equal(await page.locator('.unlock-preview-character').count(),3,'AI Lab should preview 3 characters')
     assert.equal(await page.getByRole('button',{name:/NOT NOW — BACK TO STATION/i}).count(),1,'Guided tour is optional and skippable')
     assert.equal(await page.locator('.unlock-preview-story-link').count(),3,'Each role must explicitly link to its story')
@@ -130,7 +158,7 @@ try {
       await page.locator('.back-link').click()
     }
 
-    // Partial AI Lab runs are complete attempts too: story first, repeat challenge below.
+    // Partial AI Lab run: characters unlock by score; stories were already readable.
     await page.evaluate(() => {
       localStorage.setItem('pm-lab-tier','1')
       localStorage.setItem('pm-game-tier','0')
@@ -139,11 +167,10 @@ try {
     await page.reload({waitUntil:'networkidle'})
     await page.getByRole('button', {name: /start exploring/i}).click()
     await page.locator('.preview-row').filter({hasText:'AI LAB'}).click()
-    assert.equal(await page.locator('.story-card:not(.story-locked)').count(),1,'Partial AI Lab score should reveal one story')
-    assert.ok(await page.locator('.story-list').evaluate(el => Boolean(el.compareDocumentPosition(document.querySelector('.quest-gate')) & Node.DOCUMENT_POSITION_FOLLOWING)),
-      'A partial run must still prioritize the unlocked story over another game')
-    assert.equal(await page.getByRole('button',{name:/READ ALL STORIES INSTEAD/i}).count(),1,
-      'Partial AI Lab runs should preserve the accessibility shortcut')
+    assert.equal(await page.locator('button.story-card').count(),3,'Partial AI Lab score keeps all three stories readable')
+    assert.equal(await page.locator('.story-role-link').filter({hasText:'???'}).count(),2,'Partial AI Lab score unlocks one character only')
+    assert.ok(await storiesFirst(),'A partial run keeps stories before the replay panel')
+    assert.equal(await page.getByRole('button',{name:/PLAY AGAIN/i}).count(),1,'Partial run offers replay')
 
     await page.reload({waitUntil:'networkidle'})
     assert.equal(await page.locator('h1').count(),1,'App should survive reload')

@@ -1,5 +1,7 @@
 # YUN CODEX — 9-role character gallery (v1.0)
 
+> **Note (G4, 2026-11-17):** Station stories are now readable by default, so the "Read All Stories" / skip-to-stories shortcut mentioned below has been removed. Character unlock rules are unchanged: reading stories still never unlocks a character.
+
 ## Objective / audience
 
 A playful, mobile-first interactive introduction for **recruiting and professional networking**, including candidates evaluating fit with Garena MAP. Visitors should retain **(1) fast learning, (2) applied AI engineering, and (3) lasting interest in games** without reading a second full résumé.
