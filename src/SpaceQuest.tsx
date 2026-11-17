@@ -24,6 +24,8 @@ export default function SpaceQuest({lang,onClose,onStart,onWin,onMilestone,onVie
   const [round,setRound]=useState(0)
   const callbacks=useRef({onStart,onWin,onMilestone})
   callbacks.current={onStart,onWin,onMilestone}
+ // G3: Escape always closes; a backdrop click is ignored while the game is running.
+ useEffect(()=>{const key=(e:KeyboardEvent)=>{if(e.key==='Escape')onClose()};window.addEventListener('keydown',key);return()=>window.removeEventListener('keydown',key)},[onClose])
   const move=(dir:-1|1)=>{
     if(game.current!=='running')return
     lane.current=Math.min(2,Math.max(0,lane.current+dir))
@@ -76,7 +78,7 @@ export default function SpaceQuest({lang,onClose,onStart,onWin,onMilestone,onVie
     },32)
     return ()=>{window.clearInterval(timer);window.removeEventListener('keydown',key)}
   },[round,result])
-  return <div className="overlay" onMouseDown={e=>{if(e.target===e.currentTarget)onClose()}}>
+  return <div className="overlay" onMouseDown={e=>{if(e.target===e.currentTarget&&result!=='running')onClose()}}>
     <section className="space-quest" role="dialog" aria-modal="true" aria-labelledby="space-title">
       <header className="space-titlebar"><span>🚀 MINI QUEST / 001</span><button aria-label={zh?'關閉遊戲':'Close game'} onClick={onClose}><X size={18}/></button></header>
       <h2 id="space-title">{zh?'太空船躲避挑戰':'SPACESHIP DODGE'}</h2>

@@ -145,6 +145,44 @@ try {
     assert.equal(await page.getByRole('button',{name:/READ ALL STORIES INSTEAD/i}).count(),1,
       'Partial AI Lab runs should preserve the accessibility shortcut')
 
+    // G3: while a mini-game is running, a backdrop click must not close it; Escape and the
+    // close button still do. When not running, a backdrop click closes as before.
+    const games=[
+      {station:'AI LAB',start:/START 12-SECOND RUN/i},
+      {station:'QUEST FIELD',start:/^START EXPLORING$/i},
+      {station:'GAME ROOM',start:/^START GAME$/i},
+    ]
+    const openGame=async station=>{
+      await page.locator('.back-link').click()
+      if(await page.locator('.end-screen').count())await page.getByRole('button',{name:/^MAP$/}).click()
+      await page.locator('.preview-row').filter({hasText:station}).click()
+      await page.locator('.zone-heading h1').filter({hasText:station}).waitFor()
+      await page.getByRole('button',{name:/PLAY MINI GAME|PLAY AGAIN/i}).click()
+      const dialog=page.locator('.overlay [role="dialog"]')
+      await dialog.waitFor()
+      return dialog
+    }
+    for(const game of games){
+      // Not running: backdrop click keeps closing the game.
+      let dialog=await openGame(game.station)
+      await page.mouse.click(3,3)
+      assert.equal(await dialog.count(),0,game.station+': backdrop click should close an idle mini-game')
+      // Running: backdrop click is ignored.
+      dialog=await openGame(game.station)
+      await dialog.getByRole('button',{name:game.start}).click()
+      await page.mouse.click(3,3)
+      await page.waitForTimeout(150)
+      assert.equal(await dialog.count(),1,game.station+': backdrop click must not close a running mini-game')
+      // Running: Escape still closes.
+      await page.keyboard.press('Escape')
+      assert.equal(await dialog.count(),0,game.station+': Escape should close a running mini-game')
+      // Running: the close button still closes.
+      dialog=await openGame(game.station)
+      await dialog.getByRole('button',{name:game.start}).click()
+      await dialog.locator('.space-titlebar button').click()
+      assert.equal(await dialog.count(),0,game.station+': close button should close a running mini-game')
+    }
+
     await page.reload({waitUntil:'networkidle'})
     assert.equal(await page.locator('h1').count(),1,'App should survive reload')
     assert.deepEqual(errors,[], 'Browser console or runtime errors')
